@@ -1,0 +1,1 @@
+from .cmudict import cmudict
