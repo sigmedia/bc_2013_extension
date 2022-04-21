@@ -1,0 +1,9 @@
+.DS_Store
+__pycache__/
+data/
+bin
+festvox
+
+# Specifics
+bc_2013/
+checkpoints/
