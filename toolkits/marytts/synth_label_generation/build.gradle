@@ -1,0 +1,75 @@
+// FIXME: add test if voices exist in the class path !
+buildscript {
+    def maryttsVersion = '6.0.2-SNAPSHOT'
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
+    dependencies {
+        ['en', 'de'].each { locale ->
+            classpath group: 'de.dfki.mary', name: "marytts-lang-$locale", version: maryttsVersion
+        }
+    }
+}
+
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+
+dependencies {
+    compile group:"org.json", name:"json", version:"20171018"
+
+}
+
+
+
+
+/**********************************************************************************
+ ** MaryTTS prepare
+ **********************************************************************************/
+import marytts.runutils.*;
+import marytts.config.JSONMaryConfigLoader;
+import marytts.config.MaryConfiguration;
+
+task startMary() {
+    doLast {
+        Mary.startup();
+    }
+}
+
+task stopMary() {
+    doLast {
+        Mary.shutdown()
+    }
+}
+
+/**********************************************************************************
+ ** Main tasks
+ **********************************************************************************/
+import task.*
+task ("generateLabels", type: GenerateLabelTask, dependsOn: startMary) {
+    // Prepare configuration
+
+    InputStream configuration_stream = new File(project.conf).newInputStream()
+    // new ByteArrayInputStream(project.conf.getBytes("UTF-8"));
+    configuration = (new JSONMaryConfigLoader()).loadConfiguration(configuration_stream);
+
+    list_file = file(project.list_filename)
+    text_dir = file(project.txt_dir)
+    full_label_dir = file(project.full_lab_dir)
+    mono_label_dir = file(project.mono_lab_dir)
+}
+
+
+/**********************************************************************************
+ ** Linking with build
+ **********************************************************************************/
+build.dependsOn generateLabels
+build.finalizedBy stopMary

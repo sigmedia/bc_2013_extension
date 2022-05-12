@@ -1,0 +1,31 @@
+dependencies {
+    // Core is needed
+    compile project(':marytts-core')
+
+    // DFKI
+    compile group: 'de.dfki.mary', name: 'emotionml-checker-java', version: '1.1'
+    compile group: 'de.dfki.lt.jtok', name: 'jtok-core', version: '2.1.18'
+    compile group: 'com.google.guava', name: 'guava', version: '21.0'
+    compile group: 'net.sf.trove4j', name: 'trove4j', version: '2.0.2'
+
+    // OpenNLP
+    compile group: 'org.apache.opennlp', name: 'opennlp-maxent', version: '3.0.3'
+    compile group: 'org.apache.opennlp', name: 'opennlp-tools', version: '1.7.2'
+
+    // Logging
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.9.1'
+
+    // Formatting / IO
+    compile group: 'org.m2ci.msp', name:'jtgt', version: '0.6.1'
+
+    // Testing
+    testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
+    testCompile project(":marytts-testkit")
+}
+
+
+processResources {
+    filesMatching '**/specification-version.txt', {
+        expand project.properties
+    }
+}

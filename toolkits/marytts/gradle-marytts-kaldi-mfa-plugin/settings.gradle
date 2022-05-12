@@ -1,0 +1,2 @@
+rootProject.name = 'gradle-marytts-kaldi-mfa-plugin'
+enableFeaturePreview('STABLE_PUBLISHING')

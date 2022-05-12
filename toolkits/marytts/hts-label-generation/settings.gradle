@@ -1,0 +1,27 @@
+import groovy.json.* // To load the JSON configuration file
+
+def config_json = System.getProperty("config")
+if (config_json) {
+
+    /***************************************************************************************
+     ** Configuration
+     ***************************************************************************************/
+    def slurper = new JsonSlurperClassic()
+    def config = slurper.parseText( new File(config_json).text )
+
+    // Prepare data file finder helper
+    DataFileFinder.project_path = new File(getClass().protectionDomain.codeSource.location.path).parent
+    if (config.data.project_dir) {
+        DataFileFinder.project_path = config.data.project_dir
+    }
+    rootProject.name = config.project_name
+
+    // Data extraction directory
+    config.data.text_dir = DataFileFinder.getFilePath(config.data.text_dir)
+    config.data.wav_dir = DataFileFinder.getFilePath(config.data.wav_dir)
+
+    // Finally define globally the voice building configuration
+    gradle.ext.vb_configuration = config
+} else {
+    logger.error("No configuration file given")
+}

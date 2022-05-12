@@ -1,0 +1,1 @@
+./gradlew b --max-workers=30 -Deval_name=bc_2013_label --include-build=../marytts --include-build=../gradle-marytts-kaldi-mfa-plugin --include-build=../gradle-marytts-align-plugin --include-build=../gradle-marytts-dict-extraction --no-daemon --stacktrace

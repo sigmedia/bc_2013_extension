@@ -1,0 +1,77 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.10.0'
+}
+
+group 'de.dfki.mary'
+version '0.1-SNAPSHOT'
+description 'Dictionary building using marytts.'
+
+gradlePlugin {
+    plugins {
+        MaryTTSGenerateDictionary {
+            id = 'marytts.dict-extraction-en'
+            implementationClass = 'marytts.MaryTTSGenerateDictionaryPlugin'
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven {
+        url 'https://oss.jfrog.org/artifactory/oss-release-local'
+    }
+}
+
+dependencies {
+    compile group: 'org.m2ci.msp', name: 'jtgt', version: '0.6.1'
+    ["de", "en"].each { lg ->
+        compile group: 'de.dfki.mary', name: "marytts-lang-${lg}", version: '6.0.2-SNAPSHOT', {
+            exclude group: '*', module: 'groovy-all'
+        }
+    }
+    compile group: 'de.dfki.mary', name: 'marytts-runtime', version: '6.0.2-SNAPSHOT', {
+        exclude group: '*', module: 'groovy-all'
+    }
+    testCompile group: 'org.testng', name: 'testng', version: '6.14.3'
+}
+
+test {
+    useTestNG()
+    failFast = true
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar {
+                classifier 'sources'
+            }
+        }
+    }
+}
+
+pluginBundle {
+    def pluginUrl = 'https://github.com/marytts/gradle-marytts-dict-extraction-plugin'
+    website = pluginUrl
+    vcsUrl = pluginUrl
+    description = project.description
+    tags = ['text-to-speech', 'marytts', 'dictionary', 'forced-alignment']
+
+    plugins {
+        MaryTTSGenerateDictionary {
+            displayName = 'Gradle MaryTTS dictionary generation plugin'
+        }
+    }
+}

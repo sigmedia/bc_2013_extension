@@ -1,0 +1,8 @@
+description 'NLP components for Russian'
+
+dependencies {
+    compile project(':marytts-helpers')
+
+    // Testing
+    testCompile project(":marytts-testkit")
+}

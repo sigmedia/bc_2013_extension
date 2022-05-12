@@ -1,0 +1,185 @@
+
+description 'An open-source, multilingual Text-to-Speech Synthesis platform written in Java'
+
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'eclipse-wtp'
+
+    group 'de.dfki.mary'
+    version '6.0.2-SNAPSHOT'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        mavenLocal()
+        jcenter()
+        ivy {
+            url rootDir.path + '/lib/repo'
+            layout 'maven'
+        }
+    }
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            // options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+}
+
+subprojects {
+
+    dependencies {
+        testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
+    }
+
+    sourceSets {
+        integrationTest {
+            java {
+                compileClasspath += main.output + test.output
+                runtimeClasspath += main.output + test.output
+                srcDirs = ["src/integrationTest/java"]
+            }
+            resources {
+                srcDir "src/integrationTest/resources"
+            }
+        }
+    }
+
+
+    configurations {
+        integrationTestCompile {
+            extendsFrom testCompile
+        }
+        integrationTestRuntime {
+            extendsFrom testRuntime
+        }
+    }
+
+    task integrationTest(type: Test) {
+        group 'Verification'
+        description 'Runs the integration tests.'
+        check.dependsOn it
+	testLogging.showStandardStreams = true
+        useTestNG()//  {
+        //     includeGroups 'integration'
+        // }
+        testClassesDirs = project.sourceSets.integrationTest.output.classesDirs
+        classpath = project.sourceSets.integrationTest.runtimeClasspath
+    }
+
+    tasks.withType(Test) {
+        reports {
+            html.destination = file("$reporting.baseDir/$name")
+            junitXml.destination = file("$testResultsDir/$name")
+        }
+    }
+
+    test {
+        useTestNG()
+        systemProperty "mary.base", "$rootProject.projectDir/resources"
+    }
+
+    task packageSources(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifact packageSources {
+                    classifier 'sources'
+                }
+            }
+        }
+        repositories {
+            maven {
+                url version.endsWith('-SNAPSHOT') ? 'https://oss.jfrog.org/artifactory/oss-snapshot-local' : 'https://oss.jfrog.org/artifactory/oss-release-local'
+                credentials {
+                    username = findProperty('bintrayUser')
+                    password = findProperty('bintrayApiKey')
+                }
+            }
+        }
+    }
+}
+
+
+/**********************************************************************************************
+ ** Merging parts
+ ***********************************************************************************************/
+task copyJars(type: Copy, dependsOn: subprojects.jar) {
+    from(subprojects.jar)
+    into project.file("$buildDir/libs")
+}
+
+task copyDeps(type: Copy) {
+    from(subprojects.configurations.runtime)
+    into project.file("$buildDir/libs")
+}
+
+task copyResources(type: Copy) {
+    from "$projectDir/resources"
+    into project.file("$buildDir/")
+}
+
+task copyFiles(dependsOn: [copyJars, copyDeps, copyResources])
+
+tasks.build.dependsOn(copyFiles)
+
+
+/**********************************************************************************************
+ ** Documentation generation part
+ ***********************************************************************************************/
+task aggregatedJavadocs(type: Javadoc, group: 'Documentation') {
+    description 'Generate javadocs from all child projects as if it was a single project'
+    destinationDir = file("$buildDir/docs/javadoc")
+    title = "$project.name $version API"
+
+    options.author true
+    options.links 'http://docs.spring.io/spring/docs/4.3.x/javadoc-api/',
+    'http://docs.oracle.com/javase/8/docs/api/',
+    'http://docs.spring.io/spring-ws/docs/2.3.0.RELEASE/api/',
+    'http://docs.spring.io/spring-security/site/docs/4.0.4.RELEASE/apidocs/'
+    options.addStringOption 'Xdoclint:none', '-quiet'
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+
+    subprojects.each { proj ->
+	    proj.tasks.withType(Javadoc).each { javadocTask ->
+		source += javadocTask.source
+	    classpath += javadocTask.classpath
+	    excludes += javadocTask.excludes
+	    includes += javadocTask.includes
+	}
+    }
+}
+
+// tasks.build.dependsOn(aggregatedJavadocs)
+
+
+/**********************************************************************************************
+ ** Formatting part
+ ***********************************************************************************************/
+task autoFormatCode() {
+    def config = new File("astyle_marytts.conf")
+    inputs.files config
+    outputs.upToDateWhen { false }
+    doLast {
+        fileTree(dir: '.' , include: '**/*.java').each { java_file ->
+		exec {
+                commandLine "astyle", "--options=$config", java_file
+            }
+        }
+    }
+}
+
+/**********************************************************************************************
+ ** Publishing part
+ ***********************************************************************************************/
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}

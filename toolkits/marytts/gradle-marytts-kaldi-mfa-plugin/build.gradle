@@ -1,0 +1,68 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.10.0'
+}
+
+group 'de.dfki.mary'
+version '0.4-SNAPSHOT'
+description 'Forced alignment based on MaryTTS, Kaldi, and MFA'
+
+gradlePlugin {
+    plugins {
+        maryttsKaldiMfaPlugin {
+            id = 'de.dfki.mary.voicebuilding.marytts-kaldi-mfa'
+            implementationClass = 'de.dfki.mary.voicebuilding.MaryttsKaldiMfaPlugin'
+        }
+    }
+}
+
+repositories {
+    jcenter()
+    maven {
+        url 'https://oss.jfrog.org/artifactory/oss-release-local'
+    }
+}
+
+dependencies {
+    compile group: 'org.m2ci.msp', name: 'jtgt', version: '0.6.1'
+    testCompile group: 'org.testng', name: 'testng', version: '6.14.3'
+}
+
+test {
+    useTestNG()
+    failFast = true
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar {
+                classifier 'sources'
+            }
+        }
+    }
+}
+
+pluginBundle {
+    def pluginUrl = 'https://github.com/marytts/gradle-marytts-kaldi-mfa-plugin'
+    website = pluginUrl
+    vcsUrl = pluginUrl
+    description = project.description
+    tags = ['text-to-speech', 'kaldi', 'marytts', 'forced-alignment']
+
+    plugins {
+        maryttsKaldiMfaPlugin {
+            displayName = 'Gradle MaryTTS Kaldi MFA plugin'
+        }
+    }
+}

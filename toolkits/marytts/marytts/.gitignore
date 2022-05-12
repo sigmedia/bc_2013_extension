@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+.gradletasknamecache
+build/
+
+# Maven
+target
+bin
+
+# Eclipse
+.settings/
+.project
+.classpath
+
+# Emacs
+.meghanada
+
+# IDEA
+.idea/
+*.iml
+
+# misc. testing
+tmp/
+log/
+test-output/
+
+# OSX
+.DS_Store

@@ -1,0 +1,74 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.10.0'
+}
+
+group 'de.dfki.mary'
+version '0.1-SNAPSHOT'
+description 'Alignment and linguistic feature generation plugin based on MaryTTS'
+
+gradlePlugin {
+    plugins {
+        MaryTTSAlign {
+            id = 'marytts.align'
+            implementationClass = 'marytts.MaryTTSGenerateLinguisticFeaturesPlugin'
+        }
+    }
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+    maven {
+        url 'https://oss.jfrog.org/artifactory/oss-release-local'
+    }
+}
+
+dependencies {
+    compile group: 'org.m2ci.msp', name: 'jtgt', version: '0.6.1'
+    compile group: 'de.dfki.mary', name: 'marytts-runtime', version: '6.0.2-SNAPSHOT', {
+        exclude group: '*', module: 'groovy-all'
+    }
+    compile group: 'de.dfki.mary', name: 'marytts-helpers', version: '6.0.2-SNAPSHOT', {
+        exclude group: '*', module: 'groovy-all'
+    }
+    testCompile group: 'org.testng', name: 'testng', version: '6.14.3'
+}
+
+test {
+    useTestNG()
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar {
+                classifier 'sources'
+            }
+        }
+    }
+}
+
+pluginBundle {
+    def pluginUrl = 'https://github.com/marytts/gradle-marytts-align-plugin'
+    website = pluginUrl
+    vcsUrl = pluginUrl
+    description = project.description
+    tags = ['text-to-speech', 'marytts', 'alignment', 'hts', 'unit-selection']
+
+    plugins {
+        MaryTTSGenerateDictionary {
+            displayName = 'Gradle MaryTTS alignment and linguistic feature generation plugin'
+        }
+    }
+}
