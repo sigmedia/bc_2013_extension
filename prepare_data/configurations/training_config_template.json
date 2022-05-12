@@ -1,0 +1,14 @@
+{
+    "signal": {
+        "frameshift": 5,
+        "samplerate": 48000
+    },
+    "data": {
+        "project_dir": "### TRAIN_DIR ###",
+        "text_dir":"txt",
+        "wav_dir": "wav",
+        "list_files": "list_training",
+        "locale": "en_US"
+    },
+    "project_name": "bc_2013"
+}
