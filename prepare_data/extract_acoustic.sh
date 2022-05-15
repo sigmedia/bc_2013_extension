@@ -27,7 +27,7 @@ do
     cat $LIST_DIR/${cur_set}.scp | \
         xargs -I {} -P 5 python scripts/extract_parameters.py \
               -v -c ./configurations/spect_extract.yaml \
-              ../src/train/wav/{}.wav $cur_output_dir
+              ../src/${cur_set}/wav/{}.wav $cur_output_dir
 done
 
 # Normalize
