@@ -39,3 +39,14 @@ python scripts/normalize_spect.py -L $LIST_DIR/train.scp $cur_input_dir $cur_out
 # TODO: add normalize for test and validation
 
 # TODO: add wavenet conversion
+
+# Extract F0
+for cur_set in ${ALL_SETS[@]}
+do
+    cur_output_dir=$OUTPUT_DIR/f0
+    mkdir -p $cur_output_dir
+
+    cat $LIST_DIR/${cur_set}.scp | \
+        xargs -I {} -P 5 python scripts/extract_f0.py -v \
+              ../src/${cur_set}/wav/{}.wav $cur_output_dir/{}.f0
+done
