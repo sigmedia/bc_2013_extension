@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 MARY_CONFIG=$PWD/configurations/synthesis_config.json
-INPUT_TEXT_DIR=$PWD/../../src/test/txt
+INPUT_TEXT_DIR=$PWD/../src/test/txt
 OUTPUT_DIR=$PWD/output/synthesis
 
 TMP_DIR=$PWD/tmp/synthesis
@@ -16,7 +16,7 @@ ls -1 $INPUT_TEXT_DIR | sed 's/.txt//g' > $TMP_DIR/list_files
 
 # Generate full labels
 (
-	cd toolkits/marytts/synth_label_generation;
+	cd ../toolkits/marytts/synth_label_generation;
 	./gradlew --include-build=../marytts \
                 b -Pconf=$MARY_CONFIG \
                 -Ptxt_dir=$INPUT_TEXT_DIR \
