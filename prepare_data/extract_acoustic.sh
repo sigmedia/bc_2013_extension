@@ -25,7 +25,7 @@ do
     mkdir -p $cur_output_dir
 
     cat $LIST_DIR/${cur_set}.scp | \
-        xargs -I {} -P 5 python scripts/extract_parameters.py \
+        xargs -I {} -P 5 python scripts/extract_spectrogram.py \
               -v -c ./configurations/spect_extract.yaml \
               ../src/${cur_set}/wav/{}.wav $cur_output_dir
 done
