@@ -1,0 +1,15 @@
+{
+    "marytts.runutils.Request": {
+        "input_serializer": "marytts.io.serializer.TextSerializer",
+        "output_serializer": "marytts.io.serializer.label.DefaultHTSLabelSerializer",
+        "module_sequence": [
+            "REF:en_US",
+            "marytts.modules.acoustic.TargetFeatureLister"
+        ]
+    }
+    "marytts.io.serializer.label.DefaultHTSLabelSerializer": {
+        "disable_duration": true,
+        "add_punctuation_type": true
+    }
+
+}

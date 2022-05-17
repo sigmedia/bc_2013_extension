@@ -1,0 +1,114 @@
+plugins {
+    id 'de.dfki.mary.voicebuilding.marytts-kaldi-mfa'
+}
+
+configurations {
+    data
+}
+
+repositories {
+    ivy {
+        url 'http://festvox.org/examples'
+        layout 'pattern', {
+            artifact '[module]_[classifier]/packed/[module].[ext]'
+        }
+    }
+}
+
+dependencies {
+    // http://festvox.org/examples/cmu_time_awb_ldom/packed/cmu_time_awb.tar.bz2
+    data group: 'org.festvox', name: 'cmu_time_awb', version: '1.0', classifier: 'ldom', ext: 'tar.bz2'
+}
+
+task testPlugin {
+    doLast {
+        assert pluginManager.hasPlugin('de.dfki.mary.voicebuilding.marytts-kaldi-mfa')
+    }
+}
+
+task processDataDependencies(type: Copy) {
+    from configurations.data.collect {
+        tarTree(it)
+    }
+    into "$buildDir/unpacked"
+    include '**/*.wav', '**/*.lab', '**/etc/*.data'
+    includeEmptyDirs = false
+}
+
+task convertTextPrompts(type: ConvertTextPrompts) {
+    dependsOn processDataDependencies
+    srcFile = file("$buildDir/unpacked/cmu_time_awb/etc/time.data")
+    destDir = file("$buildDir/text")
+}
+
+generateMFALabAndDictionary {
+    srcDir = convertTextPrompts.destDir
+    destDir = file("$buildDir/mfaLab")
+    dictFile = file("$buildDir/dict.txt")
+}
+
+task testGenerateMFALabAndDictionary {
+    dependsOn generateMFALabAndDictionary
+    doLast {
+        assert fileTree("$buildDir/mfaLab").include('*.lab').files
+        assert file("$buildDir/dict.txt").exists()
+    }
+}
+
+prepareForcedAlignment {
+    wavDir = file("$buildDir/unpacked/cmu_time_awb/wav")
+}
+
+task testPrepareForcedAlignment {
+    dependsOn prepareForcedAlignment
+    doLast {
+        assert fileTree("$buildDir/forcedAlignment").include('*.wav').files
+        assert fileTree("$buildDir/forcedAlignment").include('*.lab').files
+        assert file("$buildDir/forcedAlignment/dict.txt").exists()
+    }
+}
+
+task testUnpackMFA {
+    dependsOn unpackMFA
+    doLast {
+        def binaryPath = org.gradle.internal.os.OperatingSystem.current().isWindows() ? 'bin/mfa_train_and_align.exe' : 'lib/train_and_align'
+        assert file("$buildDir/mfa/$binaryPath").canExecute()
+    }
+}
+
+task testRunForcedAlignment {
+    dependsOn runForcedAlignment
+    doLast {
+        assert fileTree("$buildDir/TextGrid/forcedAlignment").include('*.TextGrid').files
+    }
+}
+
+convertTextGridToXLab {
+    dependsOn runForcedAlignment
+}
+
+task testConvertTextGridToXLab {
+    dependsOn convertTextGridToXLab
+    doLast {
+        assert fileTree("$buildDir/lab").include('*.lab').files
+    }
+}
+
+class ConvertTextPrompts extends DefaultTask {
+
+    @InputFile
+    final RegularFileProperty srcFile = newInputFile()
+
+    @OutputDirectory
+    final DirectoryProperty destDir = newOutputDirectory()
+
+    @TaskAction
+    void convert() {
+        srcFile.get().asFile.eachLine { line ->
+            def fields = line.split()
+            def prompt = fields[1]
+            def text = fields[2..-2].join(' ').replaceAll('"', '')
+            destDir.file("${prompt}.txt").get().asFile.text = text
+        }
+    }
+}

@@ -1,0 +1,82 @@
+plugins {
+    id 'marytts.dict-extraction-en'
+}
+
+configurations {
+    data
+}
+
+repositories {
+    ivy {
+        url 'http://festvox.org/examples'
+        layout 'pattern', {
+            artifact '[module]_[classifier]/packed/[module].[ext]'
+        }
+    }
+}
+
+dependencies {
+    // http://festvox.org/examples/cmu_time_awb_ldom/packed/cmu_time_awb.tar.bz2
+    data group: 'org.festvox', name: 'cmu_time_awb', version: '1.0', classifier: 'ldom', ext: 'tar.bz2'
+}
+
+
+// Start MaryTTS
+import marytts.runutils.Mary
+Mary.ensureMaryStarted()
+
+
+task testPlugin {
+    doLast {
+        assert pluginManager.hasPlugin('marytts.dict-extraction-en')
+    }
+}
+
+task processDataDependencies(type: Copy) {
+    from configurations.data.collect {
+        tarTree(it)
+    }
+    into "$buildDir/unpacked"
+    include '**/*.wav', '**/*.lab', '**/etc/*.data'
+    includeEmptyDirs = false
+}
+
+task convertTextPrompts(type: ConvertTextPrompts) {
+    dependsOn processDataDependencies
+    srcFile = file("$buildDir/unpacked/cmu_time_awb/etc/time.data")
+    destDir = file("$buildDir/text")
+}
+
+generateDictionary {
+    locale = "en_US"
+    srcDir = convertTextPrompts.destDir
+    destDir = file("$buildDir/utt_json")
+    dictFile = file("$buildDir/dict.txt")
+}
+
+task testGenerateDictionary {
+    dependsOn generateDictionary
+    doLast {
+        assert fileTree("$buildDir/utt_json").include('*.json').files
+        assert file("$buildDir/dict.txt").exists()
+    }
+}
+
+class ConvertTextPrompts extends DefaultTask {
+
+    @InputFile
+    final RegularFileProperty srcFile = newInputFile()
+
+    @OutputDirectory
+    final DirectoryProperty destDir = newOutputDirectory()
+
+    @TaskAction
+    void convert() {
+        srcFile.get().asFile.eachLine { line ->
+            def fields = line.split()
+            def prompt = fields[1]
+            def text = fields[2..-2].join(' ').replaceAll('"', '')
+            destDir.file("${prompt}.txt").get().asFile.text = text
+        }
+    }
+}

@@ -1,0 +1,5 @@
+{
+    "marytts.runutils.Request": {
+        "input_serializer": "marytts.io.serializer.TextSerializer",
+    }
+}

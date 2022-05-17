@@ -1,0 +1,27 @@
+plugins {
+    id 'marytts.align'
+}
+
+configurations {
+    data
+}
+
+repositories {
+    ivy {
+        url 'http://festvox.org/examples'
+        layout 'pattern', {
+            artifact '[module]_[classifier]/packed/[module].[ext]'
+        }
+    }
+}
+
+dependencies {
+    // http://festvox.org/examples/cmu_time_awb_ldom/packed/cmu_time_awb.tar.bz2
+    data group: 'org.festvox', name: 'cmu_time_awb', version: '1.0', classifier: 'ldom', ext: 'tar.bz2'
+}
+
+task testPlugin {
+    doLast {
+        assert pluginManager.hasPlugin('marytts.align')
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "marytts.runutils.Request": {
+        "module_sequence": [
+            "marytts.language.en.JTokenizer",
+            "marytts.language.en.Preprocess",
+            "marytts.language.en.OpenNLPPosTagger",
+            "marytts.modules.nlp.ProsodyGeneric",
+            "marytts.language.en.GBJPhonemiser"
+        ]
+    },
+    "marytts.language.en.GBJPhonemiser": {
+        "pos_punct_regex": ",|\\.|:"
+    }
+}
