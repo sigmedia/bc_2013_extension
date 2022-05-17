@@ -1,2 +1,6 @@
-src/
+# Overall directories
+/src/
 tmp/
+
+# Python
+__pycache__/
