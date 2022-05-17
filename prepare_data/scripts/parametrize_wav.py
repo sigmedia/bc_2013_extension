@@ -28,8 +28,8 @@ import logging
 from logging.config import dictConfig
 
 # IO
-import h5py
 import yaml
+from utils.io import save_wavegan, save_wavenet, save_waveglow, save_wavernn
 
 # Data
 from sklearn.preprocessing import StandardScaler
@@ -51,77 +51,6 @@ SUPPORTED_PARAMETRIZATION = set(["wg", "wG", "wn", "wr"])
 ###############################################################################
 # IO Utils
 ###############################################################################
-
-def read_hdf5(hdf5_name, hdf5_path):
-    """Read hdf5 dataset.
-
-    Args:
-        hdf5_name (str): Filename of hdf5 file.
-        hdf5_path (str): Dataset name in hdf5 file.
-
-    Return:
-        any: Dataset values.
-
-    """
-    if not os.path.exists(hdf5_name):
-        logging.error(f"There is no such a hdf5 file ({hdf5_name}).")
-        sys.exit(1)
-
-    hdf5_file = h5py.File(hdf5_name, "r")
-
-    if hdf5_path not in hdf5_file:
-        logging.error(f"There is no such a data in hdf5 file. ({hdf5_path})")
-        sys.exit(1)
-
-    hdf5_data = hdf5_file[hdf5_path][()]
-    hdf5_file.close()
-
-    return hdf5_data
-
-def write_hdf5(hdf5_name, hdf5_path, write_data, is_overwrite=True):
-    """Write dataset to hdf5.
-
-    Args:
-        hdf5_name (str): Hdf5 dataset filename.
-        hdf5_path (str): Dataset path in hdf5.
-        write_data (ndarray): Data to write.
-        is_overwrite (bool): Whether to overwrite dataset.
-
-    """
-    # convert to numpy array
-    write_data = np.array(write_data)
-
-    # check folder existence
-    folder_name, _ = os.path.split(hdf5_name)
-    if not os.path.exists(folder_name) and len(folder_name) != 0:
-        os.makedirs(folder_name)
-
-    # check hdf5 existence
-    if os.path.exists(hdf5_name):
-        # if already exists, open with r+ mode
-        hdf5_file = h5py.File(hdf5_name, "r+")
-        # check dataset existence
-        if hdf5_path in hdf5_file:
-            if is_overwrite:
-                logging.warning(
-                    "Dataset in hdf5 file already exists. " "recreate dataset in hdf5."
-                )
-                hdf5_file.__delitem__(hdf5_path)
-            else:
-                logging.error(
-                    "Dataset in hdf5 file already exists. "
-                    "if you want to overwrite, please set is_overwrite = True."
-                )
-                hdf5_file.close()
-                sys.exit(1)
-    else:
-        # if not exists, open with w mode
-        hdf5_file = h5py.File(hdf5_name, "w")
-
-    # write data to hdf5
-    hdf5_file.create_dataset(hdf5_path, data=write_data)
-    hdf5_file.flush()
-    hdf5_file.close()
 
 class DictObjectView:
     def __init__(self, in_dict:dict):
@@ -182,7 +111,6 @@ def preemphasis(x, coef=0.85):
 
 def inv_preemphasis(x, coef=0.85):
     return P.inv_preemphasis(x, coef)
-
 
 def parametrize_wav(x, config):
 
@@ -255,7 +183,10 @@ def parametrize_wav(x, config):
     # zero pad: this is needed to adjust time resolution between audio
     # and mel-spectrogram
     N = (len(x) // get_hop_size(config)) + 1
-    out = np.pad(out, (0, config.fft_size), mode=config.pad_mode, constant_values=constant_values)
+    if config.pad_mode == "constant":
+        out = np.pad(out, (0, config.fft_size), mode=config.pad_mode, constant_values=constant_values)
+    else:
+        out = np.pad(out, (0, config.fft_size), mode=config.pad_mode)
 
     assert len(out) >= N * get_hop_size(config)
 
@@ -268,77 +199,8 @@ def parametrize_wav(x, config):
     return out
 
 ###############################################################################
-# Neural vocoder helpers & entry function
+# Entry Function
 ###############################################################################
-
-
-def save_wavegan(mel_spectrogram: np.ndarray, output_file: str):
-    """Help to save the spectrogram to be compatible with WaveGAN (TODO: repo)
-
-    WaveGAN loads spectrograms saved in the hdf5 format using the shape (nb_mel, nb_frames).
-    WaveGAN considers two "paths" in the hdf5 file:
-    	- feats :: for the features
-        - ??? :: for the quantized waveform
-
-    In this script, we only consider the path "feats".
-    If the file already exists, the feats path is added to the existing content.
-    A word of caution: the path "feats" will be overwritten if already exists!
-
-    Parameters
-    ----------
-    mel_spectrogram: np.ndarray
-    	The mel spectrogram in the numpy format
-
-    output_file: str
-    	The output filename
-    """
-    write_hdf5(output_file, "wave", mel_spectrogram, True)
-
-def save_wavenet(mel_spectrogram: np.ndarray, output_file: str):
-    """Help to save the spectrogram to be compatible with WaveNet (TODO: repo)
-
-    WaveNet loads spectrograms saved in the numpy format using the shape (nb_mel, nb_frames)
-
-    Parameters
-    ----------
-    mel_spectrogram: np.ndarray
-    	The mel spectrogram in the numpy format
-
-    output_file: str
-    	The output filename
-    """
-    np.save(output_file, mel_spectrogram.T)
-
-def save_wavernn(mel_spectrogram: np.ndarray, output_file: str):
-    """Help to save the spectrogram to be compatible with WaveRNN (TODO: repo)
-
-    WaveRNN loads spectrograms saved in the numpy format using the shape (nb_mel, nb_frames)
-
-    Parameters
-    ----------
-    mel_spectrogram: np.ndarray
-    	The mel spectrogram in the numpy format
-
-    output_file: str
-    	The output filename
-    """
-    np.save(output_file, mel_spectrogram)
-
-def save_waveglow(mel_spectrogram: np.ndarray, output_file: str):
-    """Help to save the spectrogram to be compatible with WaveGLOW (TODO: repo)
-
-    WaveGLOW loads spectrogram saved in standard PyTorch format using the shape (nb_mel, nb_frames)
-
-    Parameters
-    ----------
-    mel_spectrogram: np.ndarray
-    	The mel spectrogram in the numpy format
-
-    output_file: str
-    	The output filename
-    """
-    torch.save(torch.Tensor(mel_spectrogram), output_file)
-
 
 def parametrize_wavfile(
     wav_file: str, output_directory: str, config, parametrization_type: str
@@ -355,19 +217,19 @@ def parametrize_wavfile(
     # Save it
     # - WaveGAN - TODO: add repo URL
     if parametrization_type == "wg":
-        logger.debug(f"Save the spectrogram extracted from {Path(wav_file).stem} to be compatible with Parallel WaveGAN")
+        logger.debug(f"Save the parametrized waveform extracted from {Path(wav_file).stem} to be compatible with Parallel WaveGAN")
         output_filename = os.path.join(output_directory, Path(wav_file).stem + ".h5")
-        save_wavegan(data, output_filename)
+        save_wavegan(data, output_filename, "wave")
 
     # - WaveGlow - TODO: add repo URL
     elif parametrization_type == "wG":
-        logger.debug(f"Save the spectrogram extracted from {Path(wav_file).stem} to be compatible with WaveGlow")
+        logger.debug(f"Save the parametrized waveform extracted from {Path(wav_file).stem} to be compatible with WaveGlow")
         output_filename = os.path.join(output_directory, Path(wav_file).stem + ".pt")
         save_waveglow(data, output_filename)
 
     # - WaveNet - TODO: add repo URL
     elif parametrization_type == "wn":
-        logger.debug(f"Save the spectrogram extracted from {Path(wav_file).stem} to be compatible with WaveNet")
+        logger.debug(f"Save the parametrized waveform extracted from {Path(wav_file).stem} to be compatible with WaveNet")
         output_filename = os.path.join(
             output_directory, Path(wav_file).stem + "-wave.npy"
         )
@@ -375,7 +237,7 @@ def parametrize_wavfile(
 
     # - WaveRNN - TODO: add repo URL
     elif parametrization_type == "wr":
-        logger.debug(f"Save the spectrogram extracted from {Path(wav_file).stem} to be compatible with WaveRNN")
+        logger.debug(f"Save the parametrized waveform extracted from {Path(wav_file).stem} to be compatible with WaveRNN")
         output_filename = os.path.join(output_directory, Path(wav_file).stem + ".npy")
         save_wavernn(data, output_filename)
 
