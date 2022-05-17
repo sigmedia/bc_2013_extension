@@ -1,0 +1,55 @@
+#+TITLE: Blizzard 2013 Extension - Experiment Repository
+#+AUTHOR: Sébastien Le Maguer
+#+EMAIL: lemagues@tcd.ie
+#+DATE: 17 May 2022
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  fr
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://seblemaguer.github.io/css/default.css" />
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="default.css" />
+#+BIBLIOGRAPHY: references.bib
+
+* Overview of this repository
+
+* Reproducing the experiments
+** Pre-requisites
+
+** Training
+
+** Synthesis
+
+** Preparing the evaluation
+
+* References
+** Citing this repository and the resulted experiments
+** Architectures & toolkits used in this repository
+
+The citation keys are given to avoid wasting too much space.
+Please refer to the bibtex file [[file:references.bib]] to access the full entry.
+
+
+| Architecture     | Description          | Implementation                                                                                 |
+|------------------+----------------------+------------------------------------------------------------------------------------------------|
+| Tacotron         | [cite:@Wang2017]     | https://github.com/cassiavb/Tacotron/commit/946408f8cd7b5fe9c53931c631267ba2a723910d           |
+| FastPitch        | [cite:@Lancucki2021] | https://github.com/NVIDIA/DeepLearningExamples/commit/6a642837c471c596aab7edf204384f66e9483ab2 |
+| WaveNet          | [cite:@Oord2016]     | https://github.com/r9y9/wavenet_vocoder/commit/a35fff76ea3687b05e1a10023cad3f7f64fa25a3        |
+| Parallel WaveGAN | [cite:@Yamamoto2020] | https://github.com/kan-bayashi/ParallelWaveGAN/commit/6d4411b65f9487de5ec49dabf029dc107f23192d |
+
+
+** Additional tools/softwares
+
+The citation keys are given to avoid wasting too much space.
+Please refer to the bibtex file [[file:references.bib]] to access the full entry.
+
+
+| Software      | Description         | Implementation                                                                                    |
+|---------------+---------------------+---------------------------------------------------------------------------------------------------|
+| MaryTTS       | [cite:@Steiner2018] | https://github.com/marytts/marytts                                                                |
+| Pyworld/World | [cite:@Morise2016]  | https://github.com/mmorise/World, https://github.com/JeremyCCHsu/Python-Wrapper-for-World-Vocoder |
+| FlexEval      | [cite:@Fayet2020]   | https://gitlab.inria.fr/expression/tools/FlexEval                                                 |
+
+
+* COMMENT some extra configuration
