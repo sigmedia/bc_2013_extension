@@ -5,16 +5,20 @@ AUTHOR
 
     Sébastien Le Maguer <lemagues@tcd.ie>
 
-# Copyright 2019 Tomoki Hayashi
-#  MIT License (https://opensource.org/licenses/MIT)
 DESCRIPTION
 
 LICENSE
     This script is in the public domain, free from copyrights or restrictions.
-    Created: 14 May 2022
+    Created: 17 May 2022
 """
 
+# Python
+import os
+import pathlib
 import sys
+
+# Beautifier
+from tqdm import tqdm
 
 # Arguments
 import argparse
@@ -22,26 +26,20 @@ import argparse
 # Messaging/logging
 import logging
 from logging.config import dictConfig
-from tqdm import tqdm
-
-# IO
-import os
-import pathlib
-from utils.io import read_hdf5, save_wavegan
 
 # Data
-import numpy as np
 from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+# IO
+from utils.io import load_wavegan, load_wavenet, load_waveglow, load_wavernn
+from utils.io import write_hdf5
 
 ###############################################################################
 # global constants
 ###############################################################################
 LEVEL = [logging.WARNING, logging.INFO, logging.DEBUG]
-
-###############################################################################
-# IO Utils
-###############################################################################
-
+SUPPORTED_PARAMETRIZATION = set(["wg", "wG", "wn", "wr"])
 
 ###############################################################################
 # Functions
@@ -115,8 +113,14 @@ def define_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="")
 
     # Add options
-    parser.add_argument("-L", "--list_files", default=None, help="List of files to normalize")
+    parser.add_argument("-L", "--list_files", default=None, help="List of files used to compute the scaler")
     parser.add_argument("-l", "--log_file", default=None, help="Logger file")
+    parser.add_argument(
+        "-t",
+        "--parametrization_type",
+        default="wg",
+        help="The type of parametrization expected [wn (wavenet)*, wg (wavegan), wG (waveglow), wr (wavernn)]",
+    )
     parser.add_argument(
         "-v",
         "--verbosity",
@@ -126,9 +130,9 @@ def define_argument_parser() -> argparse.ArgumentParser:
     )
 
     # Add arguments
-    parser.add_argument("scaler", help="The scaler to use for the normalization")
-    parser.add_argument("input_dir", help="The directory containing the input files to normalize")
-    parser.add_argument("output_dir", help="The output directory")
+    parser.add_argument("input_dir", help="Directory containing the input files")
+    parser.add_argument("output_file", help="Scaler file")
+    # TODO
 
     # Return parser
     return parser
@@ -143,38 +147,57 @@ if __name__ == "__main__":
     args = arg_parser.parse_args()
     logger = configure_logger(args)
 
+    # Validate the types
+    assert args.parametrization_type in SUPPORTED_PARAMETRIZATION, \
+        f"{args.parametrization_type} is not one of the available supported parametrization: {SUPPORTED_PARAMETRIZATION}"
+
+
+    # Define extension
+    ext = ".npy"
+    if args.parametrization_type == "wg": # WaveGAN
+        ext = ".h5"
+    elif args.parametrization_type == "wG": # WaveGLOW
+        ext = ".pt"
+    elif args.parametrization_type == "wn": # WaveNet
+        ext = "-feats.npy"
+    elif args.parametrization_type == "wr": # WaveRNN
+        ext = ".npy"
+
     # List files
-    # NOTE: only using wavegan format for now, convert scripts available
     in_dir = pathlib.Path(args.input_dir)
-    out_dir = pathlib.Path(args.output_dir)
     if args.list_files is None:
-        list_files = list(in_dir.glob('**/*.h5'))
+        list_files = list(in_dir.glob(f'**/*{ext}'))
     else:
         list_files = []
         with open(args.list_files) as f:
             for cur_base in f:
                 cur_base = cur_base.strip()
-                list_files.append(in_dir/(cur_base + ".h5"))
+                list_files.append(in_dir/(cur_base + ext))
 
 
-    # restore scaler (NOTE: only WaveGAN supported for now)
     scaler = StandardScaler()
-    if args.scaler.endswith(".h5"):
-        scaler.mean_ = read_hdf5(args.scaler, "mean")
-        scaler.scale_ = read_hdf5(args.scaler, "scale")
-    elif args.scaler.endswith(".npy"):
-        scaler.mean_ = np.load(args.stats)[0]
-        scaler.scale_ = np.load(args.stats)[1]
-    else:
-        raise ValueError("support only hdf5 or npy format.")
+    for input_file in tqdm(list_files):
+        # Load the data
+        if args.parametrization_type == "wg":
+            data = load_wavegan(input_file, "feats")
+        elif args.parametrization_type == "wG":
+            data = load_waveglow(input_file)
+        elif args.parametrization_type == "wn":
+            data = load_wavenet(input_file)
+        elif args.parametrization_type == "wr":
+            data = load_wavernn(input_file)
 
-    scaler.n_features_in_ = scaler.mean_.shape[0] # from version 0.23.0, this information is needed
+        # Scale
+        scaler.partial_fit(data)
 
-    # Normalize
-    for mel_fn in tqdm(list_files):
-        mel = read_hdf5(mel_fn, "feats")
-        mel = scaler.transform(mel)
-        rel_path = mel_fn.relative_to(in_dir)
-        out_path = out_dir/rel_path
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        save_wavegan(mel, out_path)
+
+    write_hdf5(
+        args.output_file,
+        "mean",
+        scaler.mean_.astype(np.float32),
+    )
+    write_hdf5(
+        args.output_file,
+        "scale",
+        scaler.scale_.astype(np.float32),
+    )
