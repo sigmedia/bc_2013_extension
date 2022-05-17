@@ -1,11 +1,18 @@
 #!/bin/bash
 
 ##################
-### Define variables
+### Define options
 ####################################################################################
+: ${NUM_CPUS:=4}
+: ${VERBOSE:=0}
 
-# Configuration directories
-MARY_CONFIG_TEMPLATE=$PWD/configurations/training_config_template.json
+[ "$VERBOSE" == "1" ] && VERB_FLAG="-v"
+[ "$VERBOSE" == "2" ] && VERB_FLAG="-vv"
+
+
+##################
+### Define Constants
+####################################################################################
 
 # Input directories
 CORPUS_ROOT_DIR=$PWD/../src/train
@@ -14,12 +21,10 @@ OUTPUT_DIR=$PWD/output/acoustic/
 ALL_SETS=(train val test)
 VOCODERS=(wg wn)
 
-
 ##################
-### Extract Spectrogram part
+### Extract Spectrogram in WaveGAN Format
 ####################################################################################
 
-# Extract using WaveGan scheme
 echo "# =============================================================="
 echo "# Extract WaveGAN spectrograms"
 echo "# =============================================================="
@@ -29,22 +34,51 @@ do
     mkdir -p $cur_output_dir
 
     cat $LIST_DIR/${cur_set}.scp | \
-        xargs -I {} -P 5 python scripts/extract_spectrogram.py \
-              -v -c ./configurations/param_wg.yaml \
+        xargs -I {} -P $NUM_CPUS python scripts/extract_spectrogram.py \
+              $VERB_FLAG -c ./configurations/param_wg.yaml \
               $CORPUS_ROOT_DIR/wav/{}.wav $cur_output_dir
 done
 
-# Now convert to wavenet!
+##################
+### Normalize (NOTE: only wavegan/wavenet supported)
+####################################################################################
+
+echo "# =============================================================="
+echo "# Compute scaler on WaveGAN"
+echo "# =============================================================="
+
+# Normalize
+cur_input_dir=$OUTPUT_DIR/wg/raw/train
+python scripts/compute_scaler.py $VERB_FLAG -t wg $cur_input_dir $OUTPUT_DIR/wg/scaler.h5
+
+
+echo "# =============================================================="
+echo "# Normalize WaveGAN spectrogram features"
+echo "# =============================================================="
+for cur_set in ${ALL_SETS[@]}
+do
+    cur_input_dir=$OUTPUT_DIR/wg/raw/$cur_set
+    cur_output_dir=$OUTPUT_DIR/wg/norm/$cur_set
+    mkdir -p $cur_output_dir
+    python scripts/normalize_spect.py \
+           $VERB_FLAG $OUTPUT_DIR/wg/scaler.h5 \
+           $cur_input_dir $cur_output_dir
+done
+
+##################
+### Convert WaveGAN feats + scaler to WaveNet
+####################################################################################
+
 echo "# =============================================================="
 echo "# Convert WaveGAN spectrograms to WaveNet spectrograms (file type change!)"
 echo "# =============================================================="
 for cur_set in ${ALL_SETS[@]}
 do
-    cur_input_dir=$OUTPUT_DIR/wg/raw/$cur_set
-    cur_output_dir=$OUTPUT_DIR/wn/raw/$cur_set
+    cur_input_dir=$OUTPUT_DIR/wg/norm/$cur_set
+    cur_output_dir=$OUTPUT_DIR/wn/norm/$cur_set
     mkdir -p $cur_output_dir
     python scripts/convert_spectrogram.py \
-           -v -i wg -o wn \
+           $VERB_FLAG -i wg -o wn \
            $cur_input_dir $cur_output_dir
 done
 
@@ -52,53 +86,40 @@ done
 ### Extract Wave
 ####################################################################################
 
-
 for cur_voc in ${VOCODERS[@]}
 do
-    # Now convert to wavenet!
     echo "# =============================================================="
     echo "# Parametrize the waveform to be compatible with the vocoder \"${cur_voc}\""
     echo "# =============================================================="
 
     for cur_set in ${ALL_SETS[@]}
     do
-        cur_output_dir=$OUTPUT_DIR/${cur_voc}/raw/$cur_set
+        cur_output_dir=$OUTPUT_DIR/${cur_voc}/norm/$cur_set
         mkdir -p $cur_output_dir
 
         cat $LIST_DIR/${cur_set}.scp | \
-            xargs -I {} -P 5 python scripts/parametrize_wav.py \
+            xargs -I {} -P $NUM_CPUS python scripts/parametrize_wav.py \
                   -t $cur_voc \
-                  -v -c ./configurations/param_${cur_voc}.yaml \
+                  $VERB_FLAG -c ./configurations/param_${cur_voc}.yaml \
                   $CORPUS_ROOT_DIR/wav/{}.wav $cur_output_dir
     done
 done
-
-exit 0
-
-##################
-### Normalize
-####################################################################################
-
-# Normalize
-cur_input_dir=$OUTPUT_DIR/wavegan/raw/train
-cur_output_dir=$OUTPUT_DIR/wavegan/norm/train
-mkdir -p $cur_output_dir
-python scripts/normalize_spect.py -L $LIST_DIR/train.scp $cur_input_dir $cur_output_dir
-
-# TODO: add normalize for test and validation
-
-# TODO: add wavenet conversion
 
 
 ##################
 ### Extract F0 for FastPitch
 ####################################################################################
+
+echo "# =============================================================="
+echo "# Extract F0 at frame (frameshift = 5ms) horizon"
+echo "# =============================================================="
+
 for cur_set in ${ALL_SETS[@]}
 do
     cur_output_dir=$OUTPUT_DIR/f0
     mkdir -p $cur_output_dir
 
     cat $LIST_DIR/${cur_set}.scp | \
-        xargs -I {} -P 5 python scripts/extract_f0.py -v \
-              ../src/${cur_set}/wav/{}.wav $cur_output_dir/{}.f0
+        xargs -I {} -P $NUM_CPUS python scripts/extract_f0.py $VERB_FLAG \
+              ../src/train/wav/{}.wav $cur_output_dir/{}.f0
 done

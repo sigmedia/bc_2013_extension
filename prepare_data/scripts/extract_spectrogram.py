@@ -111,7 +111,6 @@ def db_to_amp(x: np.ndarray):
 # Extraction
 ###############################################################################
 
-
 def wav2mel(x: np.ndarray, config, eps=1e-10) -> np.ndarray:
     """Extract mel spectrogram from the given signal
 
