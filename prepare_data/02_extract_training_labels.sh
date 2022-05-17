@@ -8,20 +8,24 @@
 MARY_CONFIG_TEMPLATE=$PWD/configurations/training_config_template.json
 
 # Input directories
-ROOT_DIR=$PWD/../src/train
-LIST_DIR=$ROOT_DIR/lists
-F0_DIR=$ROOT_DIR/f0
+CORPUS_ROOT_DIR=$PWD/../src/train
+LIST_DIR=$CORPUS_ROOT_DIR/lists
 ALL_SETS=(train val test)
 
 # Output directories
-FASTPITCH_DIR=$PWD/output/training_fastpitch
+OUTPUT_ROOT_DIR=$PWD/output
+FASTPITCH_DIR=$OUTPUT_ROOT_DIR/training_fastpitch
 FASTPITCH_DUR_DIR=$FASTPITCH_DIR/dur
 FASTPITCH_F0_DIR=$FASTPITCH_DIR/f0
 FASTPITCH_FILELIST_DIR=$FASTPITCH_DIR/filelists
 
-TACOTRON_DIR=$PWD/output/training/tacotron
+TACOTRON_DIR=$OUTPUT_ROOT_DIR/training/tacotron
 TACOTRON_DUR_DIR=$TACOTRON_DIR/dur
 TACOTRON_FILELIST_DIR=$TACOTRON_DIR/filelists
+
+# Previously generated info
+F0_DIR=$OUTPUT_ROOT_DIR/acoustic/f0
+
 
 # TMP_STUFFY
 TMP_DIR=$TMP/tmp
@@ -38,12 +42,11 @@ mkdir -p $RAW_F0_DIR $VALID_LIST_DIR $LABEL_DIR
 mkdir -p $FASTPITCH_F0_DIR $FASTPITCH_FILELIST_DIR $FASTPITCH_DUR_DIR
 mkdir -p $TACOTRON_FILELIST_DIR $TACOTRON_DUR_DIR
 
-
 ##################
 ### Generate labels using MaryTTS and Kaldi
 ####################################################################################
 
-sed "s%### TRAIN_DIR ###%$ROOT_DIR%g" $MARY_CONFIG_TEMPLATE > $MARY_CONFIG
+sed "s%### TRAIN_DIR ###%$CORPUS_ROOT_DIR%g" $MARY_CONFIG_TEMPLATE > $MARY_CONFIG
 (
     cd $PWD/../toolkits/marytts/hts-label-generation;
     ./gradlew b --max-workers=30 -Dconfig=$MARY_CONFIG \
