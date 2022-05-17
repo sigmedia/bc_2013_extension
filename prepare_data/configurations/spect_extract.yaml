@@ -1,9 +1,0 @@
-sampling_rate: 16000     # Sampling rate.
-fft_size: 1024           # FFT size.
-hop_size: 256            # Hop size.
-win_length: null         # Window length If set to null, it will be the same as fft_size.
-window: "hann"           # Window function.
-num_mels: 80             # Number of mel basis.
-fmin: 80                 # Minimum freq in mel basis calculation.
-fmax: 7600               # Maximum frequency in mel basis calculation.
-scale: "log10"           # Scale of the mel (ln, log2, log10 or dB)
