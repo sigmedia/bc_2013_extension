@@ -17,9 +17,10 @@
 # Input directories
 CORPUS_ROOT_DIR=$PWD/../src/train
 LIST_DIR=$CORPUS_ROOT_DIR/lists
-OUTPUT_DIR=$PWD/output/acoustic/
+OUTPUT_DIR=$PWD/output/training
 ALL_SETS=(train val test)
 VOCODERS=(wg wn)
+ACOUSTIC_MODEL_TOOLKITS=(fastpitch tacotron)
 
 ##################
 ### Extract Spectrogram in WaveGAN Format
@@ -70,56 +71,73 @@ done
 ####################################################################################
 
 echo "# =============================================================="
-echo "# Convert WaveGAN spectrograms to WaveNet spectrograms (file type change!)"
+echo "# Convert WaveGAN spectrograms to other toolkits spectrograms (file type change!)"
 echo "# =============================================================="
-for cur_set in ${ALL_SETS[@]}
+
+for cur_voc in ${VOCODERS[@]:1}
 do
-    cur_input_dir=$OUTPUT_DIR/wg/norm/$cur_set
-    cur_output_dir=$OUTPUT_DIR/wn/norm/$cur_set
-    mkdir -p $cur_output_dir
-    python scripts/convert_spectrogram.py \
-           $VERB_FLAG -i wg -o wn \
-           $cur_input_dir $cur_output_dir
-done
-
-##################
-### Extract Wave
-####################################################################################
-
-for cur_voc in ${VOCODERS[@]}
-do
-    echo "# =============================================================="
-    echo "# Parametrize the waveform to be compatible with the vocoder \"${cur_voc}\""
-    echo "# =============================================================="
-
     for cur_set in ${ALL_SETS[@]}
     do
+        cur_input_dir=$OUTPUT_DIR/wg/norm/$cur_set
         cur_output_dir=$OUTPUT_DIR/${cur_voc}/norm/$cur_set
         mkdir -p $cur_output_dir
-
-        cat $LIST_DIR/${cur_set}.scp | \
-            xargs -I {} -P $NUM_CPUS python scripts/parametrize_wav.py \
-                  -t $cur_voc \
-                  $VERB_FLAG -c ./configurations/param_${cur_voc}.yaml \
-                  $CORPUS_ROOT_DIR/wav/{}.wav $cur_output_dir
+        python scripts/convert_spectrogram.py \
+               $VERB_FLAG -i wg -o ${cur_voc} \
+               $cur_input_dir $cur_output_dir
     done
 done
 
-
-##################
-### Extract F0 for FastPitch
-####################################################################################
-
-echo "# =============================================================="
-echo "# Extract F0 at frame (frameshift = 5ms) horizon"
-echo "# =============================================================="
-
-for cur_set in ${ALL_SETS[@]}
+for cur_tk in ${ACOUSTIC_MODEL_TOOLKITS[@]}
 do
-    cur_output_dir=$OUTPUT_DIR/f0
-    mkdir -p $cur_output_dir
-
-    cat $LIST_DIR/${cur_set}.scp | \
-        xargs -I {} -P $NUM_CPUS python scripts/extract_f0.py $VERB_FLAG \
-              ../src/train/wav/{}.wav $cur_output_dir/{}.f0
+    for cur_set in ${ALL_SETS[@]}
+    do
+        cur_input_dir=$OUTPUT_DIR/wg/norm/$cur_set
+        cur_output_dir=$OUTPUT_DIR/${cur_tk}/mel/
+        mkdir -p $cur_output_dir
+        python scripts/convert_spectrogram.py \
+               $VERB_FLAG -i wg -o ${cur_tk} \
+               $cur_input_dir $cur_output_dir
+    done
 done
+
+# ##################
+# ### Extract Wave
+# ####################################################################################
+
+# for cur_voc in ${VOCODERS[@]}
+# do
+#     echo "# =============================================================="
+#     echo "# Parametrize the waveform to be compatible with the vocoder \"${cur_voc}\""
+#     echo "# =============================================================="
+
+#     for cur_set in ${ALL_SETS[@]}
+#     do
+#         cur_output_dir=$OUTPUT_DIR/${cur_voc}/norm/$cur_set
+#         mkdir -p $cur_output_dir
+
+#         cat $LIST_DIR/${cur_set}.scp | \
+#             xargs -I {} -P $NUM_CPUS python scripts/parametrize_wav.py \
+#                   -t $cur_voc \
+#                   $VERB_FLAG -c ./configurations/param_${cur_voc}.yaml \
+#                   $CORPUS_ROOT_DIR/wav/{}.wav $cur_output_dir
+#     done
+# done
+
+
+# ##################
+# ### Extract F0 (at frame level) for FastPitch
+# ####################################################################################
+
+# echo "# =============================================================="
+# echo "# Extract F0 at frame (frameshift = 5ms) horizon"
+# echo "# =============================================================="
+
+# for cur_set in ${ALL_SETS[@]}
+# do
+#     cur_output_dir=$OUTPUT_DIR/f0
+#     mkdir -p $cur_output_dir
+
+#     cat $LIST_DIR/${cur_set}.scp | \
+#         xargs -I {} -P $NUM_CPUS python scripts/extract_f0.py $VERB_FLAG \
+#               ../src/train/wav/{}.wav $cur_output_dir/{}.f0
+# done

@@ -28,8 +28,8 @@ import logging
 from logging.config import dictConfig
 
 # IO
-from utils.io import save_wavegan, save_wavenet, save_waveglow, save_wavernn
-from utils.io import load_wavegan, load_wavenet, load_waveglow, load_wavernn
+from utils.io import save_wavegan, save_wavenet, save_waveglow, save_wavernn, save_fastpitch
+from utils.io import load_wavegan, load_wavenet, load_waveglow, load_wavernn, load_fastpitch
 
 # Data
 import numpy as np
@@ -44,7 +44,7 @@ import librosa
 ###############################################################################
 
 LEVEL = [logging.WARNING, logging.INFO, logging.DEBUG]
-SUPPORTED_PARAMETRIZATION = set(["wg", "wG", "wn", "wr"])
+SUPPORTED_PARAMETRIZATION = set(["wg", "wG", "wn", "wr", "fastpitch", "tacotron"])
 
 
 ###############################################################################
@@ -61,31 +61,29 @@ def convert(
     # Load it
     if input_type == "wg":
         data = load_wavegan(input_file, "feats")
-    # - WaveGlow - TODO: add repo URL
     elif input_type == "wG":
         data = load_waveglow(input_file)
-    # - WaveNet - TODO: add repo URL
     elif input_type == "wn":
         data = load_wavenet(input_file)
-    # - WaveRNN - TODO: add repo URL
     elif input_type == "wr":
         data = load_wavernn(input_file)
+    elif input_type == "fastpitch":
+        data = load_fastpitch(input_file)
+    elif input_type == "tacotron":
+        data = load_wavenet(input_file)
 
 
     # Save it
-    # - WaveGAN - TODO: add repo URL
     if output_type == "wg":
         logger.debug(f"Convert the spectrogram from {Path(input_file).stem} to be compatible with Parallel WaveGAN")
         output_filename = os.path.join(output_directory, Path(input_file).stem + ".h5")
         save_wavegan(data, output_filename)
 
-    # - WaveGlow - TODO: add repo URL
     elif output_type == "wG":
         logger.debug(f"Convert the spectrogram from {Path(input_file).stem} to be compatible with WaveGlow")
         output_filename = os.path.join(output_directory, Path(input_file).stem + ".pt")
         save_waveglow(data, output_filename)
 
-    # - WaveNet - TODO: add repo URL
     elif output_type == "wn":
         logger.debug(f"Convert the spectrogram from {Path(input_file).stem} to be compatible with WaveNet")
         output_filename = os.path.join(
@@ -93,11 +91,20 @@ def convert(
         )
         save_wavenet(data, output_filename)
 
-    # - WaveRNN - TODO: add repo URL
     elif output_type == "wr":
         logger.debug(f"Convert the spectrogram from {Path(input_file).stem} to be compatible with WaveRNN")
         output_filename = os.path.join(output_directory, Path(input_file).stem + ".npy")
         save_wavernn(data, output_filename)
+
+    elif output_type == "fastpitch":
+        logger.debug(f"Convert the spectrogram from {Path(input_file).stem} to be compatible with FastPitch")
+        output_filename = os.path.join(output_directory, Path(input_file).stem + ".pt")
+        save_fastpitch(data, output_filename)
+
+    elif output_type == "tacotron":
+        logger.debug(f"Convert the spectrogram from {Path(input_file).stem} to be compatible with Tacotron")
+        output_filename = os.path.join(output_directory, Path(input_file).stem + ".npy")
+        save_wavenet(data, output_filename)
 
 
 ###############################################################################

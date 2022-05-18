@@ -99,8 +99,7 @@ def write_hdf5(hdf5_name, hdf5_path, write_data, is_overwrite=True):
 # WaveGAN
 ###############################################################################
 def load_wavegan(input_file: str, path: str="feats") -> np.ndarray:
-    """TODO
-    """
+    """TODO"""
     assert path in ("feats", "wave")
     return read_hdf5(input_file, path)
 
@@ -199,3 +198,29 @@ def save_wavernn(mel_spectrogram: np.ndarray, output_file: str):
     	The output filename
     """
     np.save(output_file, mel_spectrogram)
+
+
+###############################################################################
+# FastPitch
+###############################################################################
+
+def load_fastpitch(input_file: str) -> np.ndarray:
+    """TODO
+    """
+
+    return torch.load(input_file).numpy().T
+
+def save_fastpitch(mel_spectrogram: np.ndarray, output_file: str):
+    """Help to save the spectrogram to be compatible with WaveRNN (TODO: repo)
+
+    WaveRNN loads spectrograms saved in the numpy format using the shape (nb_mel, nb_frames)
+
+    Parameters
+    ----------
+    mel_spectrogram: np.ndarray
+    	The mel spectrogram in the numpy format
+
+    output_file: str
+    	The output filename
+    """
+    torch.save(torch.Tensor(mel_spectrogram.T), output_file)
