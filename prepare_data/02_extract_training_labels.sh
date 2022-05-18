@@ -13,19 +13,19 @@ LIST_DIR=$CORPUS_ROOT_DIR/lists
 ALL_SETS=(train val test)
 
 # Output directories
-OUTPUT_ROOT_DIR=$PWD/output
-FASTPITCH_DIR=$OUTPUT_ROOT_DIR/training_fastpitch
+OUTPUT_ROOT_DIR=$PWD/output/training
+F0_DIR=$OUTPUT_ROOT_DIR/f0  # Actually an input but an output of the previous script, see 01_extract_acoustics.sh
+
+#   - FastPitch directories
+FASTPITCH_DIR=$OUTPUT_ROOT_DIR/fastpitch
 FASTPITCH_DUR_DIR=$FASTPITCH_DIR/dur
 FASTPITCH_F0_DIR=$FASTPITCH_DIR/f0
 FASTPITCH_FILELIST_DIR=$FASTPITCH_DIR/filelists
 
-TACOTRON_DIR=$OUTPUT_ROOT_DIR/training/tacotron
-TACOTRON_DUR_DIR=$TACOTRON_DIR/dur
+#   - Tacotron directories
+TACOTRON_DIR=$OUTPUT_ROOT_DIR/tacotron
+TACOTRON_ATT_GUIDES_DIR=$TACOTRON_DIR/att_guides
 TACOTRON_FILELIST_DIR=$TACOTRON_DIR/filelists
-
-# Previously generated info
-F0_DIR=$OUTPUT_ROOT_DIR/acoustic/f0
-
 
 # TMP_STUFFY
 TMP_DIR=$TMP/tmp
@@ -40,11 +40,15 @@ MARY_CONFIG=$TMP_DIR/mary_config.json
 
 mkdir -p $RAW_F0_DIR $VALID_LIST_DIR $LABEL_DIR
 mkdir -p $FASTPITCH_F0_DIR $FASTPITCH_FILELIST_DIR $FASTPITCH_DUR_DIR
-mkdir -p $TACOTRON_FILELIST_DIR $TACOTRON_DUR_DIR
+mkdir -p $TACOTRON_FILELIST_DIR $TACOTRON_ATT_GUIDES
 
 ##################
 ### Generate labels using MaryTTS and Kaldi
 ####################################################################################
+
+echo "# =============================================================="
+echo "# Use MaryTTS to extract the labels"
+echo "# =============================================================="
 
 sed "s%### TRAIN_DIR ###%$CORPUS_ROOT_DIR%g" $MARY_CONFIG_TEMPLATE > $MARY_CONFIG
 (
@@ -60,10 +64,13 @@ sed "s%### TRAIN_DIR ###%$CORPUS_ROOT_DIR%g" $MARY_CONFIG_TEMPLATE > $MARY_CONFI
 
 cp -fv $PWD/../toolkits/marytts/hts-label-generation/build/hts_labels/mono/*.lab $LABEL_DIR
 
-
 ##################
 ### Generate generic prompt
 ####################################################################################
+
+echo "# =============================================================="
+echo "# Generate generic prompts from the extract labels"
+echo "# =============================================================="
 
 # List files that merlin was able to process
 comm -12 \
@@ -79,9 +86,13 @@ cat $TMP_DIR/merlin_valid_list.scp | \
 ### Generate FastPitch data (F0, duration & prompts)
 ####################################################################################
 
+echo "# =============================================================="
+echo "# Generate FastPitch data (F0, duration & prompts)"
+echo "# =============================================================="
+
 # Generate the coefficient files needed for fastpitch
 cat $TMP_DIR/merlin_valid_list.scp | \
-    parallel --verbose -I {} python scripts/convert.py \
+    parallel --verbose -I {} python scripts/merlin2fastpitch.py \
              $LABEL_DIR/{}.lab \
              $F0_DIR/{}.f0 \
              $FASTPITCH_DUR_DIR/{}.pt \
@@ -113,6 +124,10 @@ cat $FASTPITCH_FILELIST_DIR/bc_2013_mel_dur_pitch_text_train_filelist.txt | \
 ### Generate Tacotron prompt & attention
 ####################################################################################
 
+echo "# =============================================================="
+echo "# Generate Tacotron data (prompt & attention guides)"
+echo "# =============================================================="
+
 # Filter training set files and normalize
 for cur_set in ${ALL_SETS[@]}
 do
@@ -127,3 +142,9 @@ done
 
 # Generate list of symbols
 cat $TACOTRON_FILELIST_DIR/metadata_train.psv | cut -d '|' -f4 |tr ' ' $'\n'| sort -u > $TACOTRON_DIR/ph_list
+
+# Generate attention guides
+cat $TMP_DIR/merlin_valid_list.scp | \
+    parallel --verbose -I {} python scripts/lab2att.py \
+             $LABEL_DIR/{}.lab \
+             $TACOTRON_ATT_GUIDES_DIR/{}.npy
