@@ -91,10 +91,11 @@ while (<$FT>) {
             foreach $t_tsent (@tsents) {
                 ( $h, $d, $s, $ii, $score ) =
                   SENTWER::sent_wer( $t_tsent, $rsent );
-                $wer =
-                  1 - ( ( $h + $d + $s ) == 0
+                $wer = 1 - (
+                    ( $h + $d + $s ) == 0
                     ? 0
-                    : ( $h - $ii ) / ( $h + $d + $s ) );
+                    : ( $h - $ii ) / ( $h + $d + $s )
+                    );
 
                 # if (@tsents>1){
                 #   print "   --TEST SENT: $t_tsent \n";
@@ -139,10 +140,11 @@ while (<$FT>) {
 
     print $FRES $ll, "\n";
 
-    $p_wer =
-      1 - ( ( $p_h + $p_d + $p_s ) == 0
+    $p_wer = 1 - (
+        ( $p_h + $p_d + $p_s ) == 0
         ? 0
-        : ( $p_h - $p_ii ) / ( $p_h + $p_d + $p_s ) );
+        : ( $p_h - $p_ii ) / ( $p_h + $p_d + $p_s )
+    );
     print "\n-------PERSON------\n";
     print
 "PERSON STATISTIC: hit=$p_h del=$p_d insert=$p_ii sub=$p_s  wer=$p_wer \n";
@@ -150,10 +152,11 @@ while (<$FT>) {
 
 }    #each line
 
-$a_wer =
-  1 - ( ( $a_h + $a_d + $a_s ) == 0
+$a_wer = 1 - (
+    ( $a_h + $a_d + $a_s ) == 0
     ? 0
-    : ( $a_h - $a_ii ) / ( $a_h + $a_d + $a_s ) );
+    : ( $a_h - $a_ii ) / ( $a_h + $a_d + $a_s )
+);
 print
 "\n\n-----------------------------TOTAL--------------------------------------\n";
 print "TOTAL STATISTIC: hit=$a_h del=$a_d insert=$a_ii sub=$a_s  wer=$a_wer \n";
@@ -212,6 +215,7 @@ sub handle_equ_pair {
                         $sents[$tn] = $newsent;
                         $tn++;
                         $box{$newsent} = 1;
+
                         # print "ADD EQU_PAIRE ($x=$y) for sent: $sents[$i]\n";
                         last;
                     }    #add in if never exist
@@ -246,6 +250,7 @@ sub handle_equ_pair {
                     $sents[$tn] = $newsent;
                     $tn++;
                     $box{$newsent} = 1;
+
                     # print "ADD EQU_PAIRE ($x=$y) for sent: $sents[$i]\n";
                     last;
                 }    #add in if never exist
@@ -413,10 +418,11 @@ sub auto_correct {
 
                 ( $h, $d, $s, $ii, $score ) = SENTWER::sent_wer( $ex_t, $ex_r );
 
-                my $acc =
-                  ( ( $h + $d + $s ) == 0
+                my $acc = (
+                    ( $h + $d + $s ) == 0
                     ? 0
-                    : ( $h - $ii ) / ( $h + $d + $s ) );
+                    : ( $h - $ii ) / ( $h + $d + $s )
+                );
 
                 if ( $acc > $bval ) {
                     $bval = $acc;
@@ -524,9 +530,9 @@ sub cal_in_array {
 
     }
 
-#     print "BEST TEST SENT: $l_sent \n";
-#     print
-# "BEST STATISTIC: hit=$l_h del=$l_d insert=$l_ii sub=$l_s wer=$least_wer\n\n";
+ #     print "BEST TEST SENT: $l_sent \n";
+ #     print
+ # "BEST STATISTIC: hit=$l_h del=$l_d insert=$l_ii sub=$l_s wer=$least_wer\n\n";
 
 }
 
@@ -557,6 +563,7 @@ sub read_equ_file {
     if ( $equfn ne "" ) {
 
         open( FEQ, $equfn ) || die "open equ pair file $equfn failed\n";
+
         # print "reading equ pair file $equfn ..\n";
         while (<FEQ>) {
 
@@ -578,6 +585,7 @@ sub read_equ_file {
         close(FEQ);
 
     }
+
     # print "reading equ pair file $equfn done\n";
     print_hash(%equlist);
 }
@@ -596,6 +604,7 @@ sub read_dict_file {
 
         }
         close(FV);
+
         # print("reading dict file done.\n");
 
         #print "DBG: ",%vlist,"\n";
@@ -608,6 +617,7 @@ sub read_test_file_head {
     my @ln   = ();
 
     open( $FT, $test ) || die "open test file $test failed\n";
+
     # print "DBG: FT=", $FT, "FR=", $FRES, "\n";
     while (<$FT>) {
         chomp;
@@ -696,6 +706,7 @@ sub print_ref {
     my $x;
 
     foreach $x ( keys(%rsent) ) {
+
         # print("DBG: $x: $rsent{$x}\n");
     }
 
@@ -704,6 +715,7 @@ sub print_ref {
 sub print_test_file_head {
 
     for ( my $i = 0 ; $i < @thead ; $i++ ) {
+
         # print "DBG $i: .$thead[$i].\n";
     }
 }
@@ -712,6 +724,7 @@ sub print_array {
     my $n = @_;
     my @x = @_;
     for ( my $i = 0 ; $i < $n ; $i++ ) {
+
         # print $x[$i], "\n";
     }
 }
@@ -719,6 +732,7 @@ sub print_array {
 sub print_hash {
 
     my %equlist = @_;
+
     # print "DBG: \n";
     # foreach my $x ( keys(%equlist) ) {
     #     print "$x = $equlist{$x}\n";
