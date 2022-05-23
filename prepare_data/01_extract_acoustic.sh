@@ -50,7 +50,7 @@ echo "# =============================================================="
 
 # Normalize
 cur_input_dir=$OUTPUT_DIR/wg/raw/train
-python scripts/compute_scaler.py $VERB_FLAG -t wg $cur_input_dir $OUTPUT_DIR/wg/scaler.h5
+python scripts/compute_scaler.py $VERB_FLAG -t wg $cur_input_dir $OUTPUT_DIR/wg/stats.h5
 
 
 echo "# =============================================================="
@@ -62,7 +62,7 @@ do
     cur_output_dir=$OUTPUT_DIR/wg/norm/$cur_set
     mkdir -p $cur_output_dir
     python scripts/normalize_spect.py \
-           $VERB_FLAG $OUTPUT_DIR/wg/scaler.h5 \
+           $VERB_FLAG $OUTPUT_DIR/wg/stats.h5 \
            $cur_input_dir $cur_output_dir
 done
 
@@ -100,44 +100,44 @@ do
     done
 done
 
-# ##################
-# ### Extract Wave
-# ####################################################################################
+##################
+### Extract Wave
+####################################################################################
 
-# for cur_voc in ${VOCODERS[@]}
-# do
-#     echo "# =============================================================="
-#     echo "# Parametrize the waveform to be compatible with the vocoder \"${cur_voc}\""
-#     echo "# =============================================================="
+for cur_voc in ${VOCODERS[@]}
+do
+    echo "# =============================================================="
+    echo "# Parametrize the waveform to be compatible with the vocoder \"${cur_voc}\""
+    echo "# =============================================================="
 
-#     for cur_set in ${ALL_SETS[@]}
-#     do
-#         cur_output_dir=$OUTPUT_DIR/${cur_voc}/norm/$cur_set
-#         mkdir -p $cur_output_dir
+    for cur_set in ${ALL_SETS[@]}
+    do
+        cur_output_dir=$OUTPUT_DIR/${cur_voc}/norm/$cur_set
+        mkdir -p $cur_output_dir
 
-#         cat $LIST_DIR/${cur_set}.scp | \
-#             xargs -I {} -P $NUM_CPUS python scripts/parametrize_wav.py \
-#                   -t $cur_voc \
-#                   $VERB_FLAG -c ./configurations/param_${cur_voc}.yaml \
-#                   $CORPUS_ROOT_DIR/wav/{}.wav $cur_output_dir
-#     done
-# done
+        cat $LIST_DIR/${cur_set}.scp | \
+            xargs -I {} -P $NUM_CPUS python scripts/parametrize_wav.py \
+                  -t $cur_voc \
+                  $VERB_FLAG -c ./configurations/param_${cur_voc}.yaml \
+                  $CORPUS_ROOT_DIR/wav/{}.wav $cur_output_dir
+    done
+done
 
 
-# ##################
-# ### Extract F0 (at frame level) for FastPitch
-# ####################################################################################
+##################
+### Extract F0 (at frame level) for FastPitch
+####################################################################################
 
-# echo "# =============================================================="
-# echo "# Extract F0 at frame (frameshift = 5ms) horizon"
-# echo "# =============================================================="
+echo "# =============================================================="
+echo "# Extract F0 at frame (frameshift = 5ms) horizon"
+echo "# =============================================================="
 
-# for cur_set in ${ALL_SETS[@]}
-# do
-#     cur_output_dir=$OUTPUT_DIR/f0
-#     mkdir -p $cur_output_dir
+for cur_set in ${ALL_SETS[@]}
+do
+    cur_output_dir=$OUTPUT_DIR/f0
+    mkdir -p $cur_output_dir
 
-#     cat $LIST_DIR/${cur_set}.scp | \
-#         xargs -I {} -P $NUM_CPUS python scripts/extract_f0.py $VERB_FLAG \
-#               ../src/train/wav/{}.wav $cur_output_dir/{}.f0
-# done
+    cat $LIST_DIR/${cur_set}.scp | \
+        xargs -I {} -P $NUM_CPUS python scripts/extract_f0.py $VERB_FLAG \
+              ../src/train/wav/{}.wav $cur_output_dir/{}.f0
+done
