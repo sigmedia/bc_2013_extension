@@ -12,16 +12,128 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="default.css" />
 #+BIBLIOGRAPHY: references.bib
 
-* Overview of this repository
+* TODO Overview of this repository
 
 * Reproducing the experiments
-** Pre-requisites
+** TODO Pre-requisites
+This repository relies on =java= and =gradle= to extract the labels as well as =python=:
+  - The code has been tested using =java 11=. You can install it using [[https://sdkman.io/install][sdkman]].
+  - =gradle= is using wrappers, so no dependencies have to be explicitly installed
+  - for python, it is easier to create a conda environment:
+    - [[file:bc_extension_gpu.yaml]] :: defines the environment for a use on *GPU (recommended)*
+    - [[file:bc_extension_cpu.yaml]] :: defines the environment for a use on *CPU* (test for synthesis)
+
+** Data preparation
+*** For training
+Simply go to the directory =prepare_data= and run the following command:
+
+#+begin_src shell :results output replace
+  # To extract the mel spectrograms
+  bash ./01_extract_acoustics.sh
+
+  # To get the labels, the prompts, the F0 (FastPitch), the duration (FastPitch) and the attention guides (Tacotron)
+  bash ./02_extract_training_labels.sh
+#+end_src
+
+The results will be available in the directory =output/synthesis=.
+
+*** For synthesis
+Simply go to the directory =prepare_data= and run the following command:
+
+#+begin_src shell :results output replace
+  bash ./03_extract_synthesis_labels.sh
+#+end_src
+
+The results will be available in the directory =output/synthesis=.
 
 ** Training
+For all this part, we assume that the *conda environment is activated*!
+We also assume that the data preparation was ran (if not go to the previous section!).
 
-** Synthesis
+*** WaveNet
+For WaveNet, the training happens in the directory =toolkits/wavenet/egs/bc_2013=.
+The first thing to do is linking the dataset to what has been extracted during the data preparation:
 
-** Preparing the evaluation
+#+begin_src shell :results output replace
+  ln -s $PWD/../../../../prepare_data/output/training/wn $PWD/dump
+#+end_src
+
+Then you can start the training as following:
+
+#+begin_src shell :results output replace
+  bash run.sh
+#+end_src
+
+*** Parallel WaveGAN
+For WaveNet, the training happens in the directory =toolkits/wavenet/egs/bc_2013/voc1=.
+The first thing to do is linking the dataset to what has been extracted during the data preparation:
+
+#+begin_src shell :results output replace
+  ln -s $PWD/../../../../../prepare_data/output/training/wg $PWD/dump
+#+end_src
+
+Then you can start the training as following:
+
+#+begin_src shell :results output replace
+  bash run.sh
+#+end_src
+
+*** FastPitch
+For FastPitch, the training happens in the directory =toolkits/fastpitch=.
+The first thing to do is linking the dataset to what has been extracted during the data preparation:
+
+#+begin_src shell :results output replace
+  mkdir bc_2013
+  ln -s $PWD/bc_2013/../../../prepare_data/output/training/fastpitch $PWD/bc_2013/dataset
+#+end_src
+
+Then you can start the training as following:
+
+#+begin_src shell :results output replace
+  NUM_GPUS=1 BS=16 PH_DICT=bc_2013/dataset/ph_list bash scripts/train.sh
+#+end_src
+
+Here is the description for the used variables:
+  - =NUM_GPUS= :: the number of GPUs used for the training
+  - =BS= :: the batch size
+  - =PH_DICT= :: the path to the list of phonemes used in the corpus (if not defined, it will default to =RADIO_ARPABET= & =ARCTIC=)
+
+*** TODO Tacotron
+For Tacotron, the training happens in the directory =toolkits/tacotron=.
+The first thing to do is linking the dataset to what has been extracted during the data preparation:
+
+#+begin_src shell :results output replace
+  mkdir bc_2013
+  ln -s $PWD/bc_2013/../../../prepare_data/output/training/tacotron $PWD/bc_2013/data
+#+end_src
+
+Then you can start the training as following:
+
+#+begin_src shell :results output replace
+  python train_pag.py -d bc_2013/data/ph_list
+#+end_src
+
+*** When this is over!
+The last step is to backup the files to be compatible with the synthesis script.
+To do so, run the following command:
+
+#+begin_src shell :results output replace
+  bash helpers/backup_models models
+#+end_src
+
+For this command, the models will be back up in the directory =models=.
+Change the argument if you want to change the backup directory
+
+** TODO Synthesis
+
+** Parsing the evaluation results
+Simply go to the directory =evaluation= and run:
+
+#+begin_src shell :results output replace
+bash run.sh
+#+end_src
+
+The results will be available in the directory =output=.
 
 * References
 ** Citing this repository and the resulted experiments
