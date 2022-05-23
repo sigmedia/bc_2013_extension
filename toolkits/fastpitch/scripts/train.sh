@@ -2,7 +2,7 @@
 
 export OMP_NUM_THREADS=1
 
-: ${NUM_GPUS:=8}
+: ${NUM_GPUS:=1}
 : ${BS:=32}
 : ${GRAD_ACCUMULATION:=1}
 : ${AMP:=false}

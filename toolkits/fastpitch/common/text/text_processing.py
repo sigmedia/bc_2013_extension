@@ -177,7 +177,6 @@ class DefaultTextProcessing(object):
 
 class DictTextProcessing(object):
     def __init__(self, dict_file):
-        print(dict_file)
         with open(dict_file) as f_in:
             self.symbols = ["_"] + [l.strip() for l in f_in]
 

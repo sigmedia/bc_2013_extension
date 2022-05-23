@@ -131,9 +131,9 @@ def parse_args(parser):
     return parser
 
 
-def load_model_from_ckpt(checkpoint_path, ema, model):
+def load_model_from_ckpt(checkpoint_path, ema, model, device=torch.device('cpu')):
 
-    checkpoint_data = torch.load(checkpoint_path)
+    checkpoint_data = torch.load(checkpoint_path, map_location=device)
     status = ''
 
     if 'state_dict' in checkpoint_data:
@@ -168,7 +168,7 @@ def load_and_setup_model(model_name, parser, checkpoint, amp, device,
                              jitable=jitable)
 
     if checkpoint is not None:
-        model = load_model_from_ckpt(checkpoint, ema, model)
+        model = load_model_from_ckpt(checkpoint, ema, model, device)
 
     if model_name == "WaveGlow":
         model = model.remove_weightnorm(model)
@@ -264,12 +264,17 @@ def build_pitch_transformation(args):
 
 
 class MeasureTime(list):
+    def __init__(self, device):
+        self._device = device
+
     def __enter__(self):
-        torch.cuda.synchronize()
+        if self._device != "cpu":
+            torch.cuda.synchronize()
         self.t0 = time.perf_counter()
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        torch.cuda.synchronize()
+        if self._device != "cpu":
+            torch.cuda.synchronize()
         self.append(time.perf_counter() - self.t0)
 
     def __add__(self, other):
@@ -301,6 +306,7 @@ def main():
     [DLLogger.log("PARAMETER", {k: v}) for k, v in vars(args).items()]
 
     device = torch.device('cuda' if args.cuda else 'cpu')
+    device = "cpu"
 
     if args.fastpitch != 'SKIP':
         generator = load_and_setup_model(
@@ -348,8 +354,8 @@ def main():
                     audios = waveglow(mel, sigma=args.sigma_infer).float()
                     _ = denoiser(audios, strength=args.denoising_strength)
 
-    gen_measures = MeasureTime()
-    waveglow_measures = MeasureTime()
+    gen_measures = MeasureTime(device)
+    waveglow_measures = MeasureTime(device)
 
     gen_kw = {'pace': args.pace,
               'speaker': args.speaker}
