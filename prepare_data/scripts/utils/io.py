@@ -132,7 +132,7 @@ def save_wavegan(mel_spectrogram: np.ndarray, output_file: str, path: str="feats
 def load_wavenet(input_file: str) -> np.ndarray:
     """TODO
     """
-    return np.load(input_file).T
+    return np.load(input_file)
 
 
 def save_wavenet(mel_spectrogram: np.ndarray, output_file: str):
@@ -148,7 +148,7 @@ def save_wavenet(mel_spectrogram: np.ndarray, output_file: str):
     output_file: str
     	The output filename
     """
-    np.save(output_file, mel_spectrogram.T)
+    np.save(output_file, mel_spectrogram)
 
 ###############################################################################
 # WaveGlow
@@ -204,13 +204,13 @@ def save_wavernn(mel_spectrogram: np.ndarray, output_file: str):
 # FastPitch
 ###############################################################################
 
-def load_fastpitch(input_file: str) -> np.ndarray:
+def load_tacotron(input_file: str) -> np.ndarray:
     """TODO
     """
 
-    return torch.load(input_file).numpy().T
+    return np.load(input_file).T
 
-def save_fastpitch(mel_spectrogram: np.ndarray, output_file: str):
+def save_tacotron(mel_spectrogram: np.ndarray, output_file: str):
     """Help to save the spectrogram to be compatible with WaveRNN (TODO: repo)
 
     WaveRNN loads spectrograms saved in the numpy format using the shape (nb_mel, nb_frames)
@@ -223,4 +223,4 @@ def save_fastpitch(mel_spectrogram: np.ndarray, output_file: str):
     output_file: str
     	The output filename
     """
-    torch.save(torch.Tensor(mel_spectrogram.T), output_file)
+    np.save(output_file, mel_spectrogram.T)

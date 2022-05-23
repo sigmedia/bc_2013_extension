@@ -28,8 +28,8 @@ import logging
 from logging.config import dictConfig
 
 # IO
-from utils.io import save_wavegan, save_wavenet, save_waveglow, save_wavernn, save_fastpitch
-from utils.io import load_wavegan, load_wavenet, load_waveglow, load_wavernn, load_fastpitch
+from utils.io import save_wavegan, save_wavenet, save_waveglow, save_wavernn, save_tacotron
+from utils.io import load_wavegan, load_wavenet, load_waveglow, load_wavernn, load_tacotron
 
 # Data
 import numpy as np
@@ -68,9 +68,9 @@ def convert(
     elif input_type == "wr":
         data = load_wavernn(input_file)
     elif input_type == "fastpitch":
-        data = load_fastpitch(input_file)
+        data = load_waveglow(input_file)
     elif input_type == "tacotron":
-        data = load_wavenet(input_file)
+        data = load_tacotron(input_file)
 
 
     # Save it
@@ -99,12 +99,12 @@ def convert(
     elif output_type == "fastpitch":
         logger.debug(f"Convert the spectrogram from {Path(input_file).stem} to be compatible with FastPitch")
         output_filename = os.path.join(output_directory, Path(input_file).stem + ".pt")
-        save_fastpitch(data, output_filename)
+        save_waveglow(data, output_filename)
 
     elif output_type == "tacotron":
         logger.debug(f"Convert the spectrogram from {Path(input_file).stem} to be compatible with Tacotron")
         output_filename = os.path.join(output_directory, Path(input_file).stem + ".npy")
-        save_wavenet(data, output_filename)
+        save_tacotron(data, output_filename)
 
 
 ###############################################################################
