@@ -4,3 +4,7 @@ tmp/
 
 # Python
 __pycache__/
+
+# Some emacs thingies
+*.el
+README.html
