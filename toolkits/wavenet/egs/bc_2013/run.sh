@@ -5,8 +5,7 @@ VOC_DIR=$script_dir/../../
 
 # Directory that contains all wav files
 # **CHANGE** this to your database path
-db_root=~/segmented/wavn/
-spk="bc_2013_orig"
+spk="bc_2013"
 dumpdir=dump
 
 # train/dev/eval split
@@ -44,9 +43,9 @@ set -e
 set -u
 set -o pipefail
 
-train_set="train_no_dev"
-dev_set="dev"
-eval_set="eval"
+train_set="train"
+dev_set="val"
+eval_set="test"
 datasets=($train_set $dev_set $eval_set)
 
 # exp name
@@ -57,59 +56,22 @@ else
 fi
 expdir=exp/$expname
 
-feat_typ="logmelspectrogram"
-
 # Output directories
-data_root=data/$spk                        # train/dev/eval splitted data
-dump_org_dir=$dumpdir/$spk/$feat_typ/org   # extracted features (pair of <wave, feats>)
-dump_norm_dir=$dumpdir/$spk/$feat_typ/norm # extracted features (pair of <wave, feats>)
-
-if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-    echo "stage 0: train/dev/eval split"
-    if [ -z $db_root ]; then
-      echo "ERROR: DB ROOT must be specified for train/dev/eval splitting."
-      echo "  Use option --db-root \${path_contains_wav_files}"
-      exit 1
-    fi
-    python $VOC_DIR/mksubset.py $db_root $data_root \
-      --train-dev-test-split --dev-size $dev_size --test-size $eval_size \
-      --limit=$limit
-fi
-
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    echo "stage 1: Feature Generation"
-    for s in ${datasets[@]};
-    do
-      python $VOC_DIR/preprocess.py wavallin $data_root/$s ${dump_org_dir}/$s \
-        --hparams="global_gain_scale=${global_gain_scale}" --preset=$hparams
-    done
-
-    # Compute mean-var normalization stats
-    find $dump_org_dir/$train_set -type f -name "*feats.npy" > train_list.txt
-    python $VOC_DIR/compute-meanvar-stats.py train_list.txt $dump_org_dir/meanvar.joblib
-    rm -f train_list.txt
-
-    # Apply normalization
-    for s in ${datasets[@]};
-    do
-      python $VOC_DIR/preprocess_normalize.py ${dump_org_dir}/$s $dump_norm_dir/$s \
-        $dump_org_dir/meanvar.joblib
-    done
-    cp -f $dump_org_dir/meanvar.joblib ${dump_norm_dir}/meanvar.joblib
-fi
+dump_norm_dir=$dumpdir/norm # extracted features (pair of <wave, feats>)
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     echo "stage 2: WaveNet training"
-    python $VOC_DIR/train.py --dump-root $dump_norm_dir --preset $hparams \
-      --checkpoint-dir=$expdir \
-      --checkpoint=$expdir/checkpoint_step000300000.pth \
-      --log-event-path=tensorboard/${expname}
+    python $VOC_DIR/train.py \
+        --dump-root $dump_norm_dir \
+        --preset $hparams \
+        --checkpoint-dir=$expdir/models \
+        --log-event-path=tensorboard/${expname}
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     echo "stage 3: Synthesis waveform from WaveNet"
     if [ -z $eval_checkpoint ]; then
-      eval_checkpoint=$expdir/checkpoint_latest.pth
+      eval_checkpoint=$expdir/models/checkpoint_latest.pth
     fi
     name=$(basename $eval_checkpoint)
     name=${name/.pth/}
