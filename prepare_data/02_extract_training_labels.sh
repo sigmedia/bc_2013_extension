@@ -28,7 +28,7 @@ TACOTRON_ATT_GUIDES_DIR=$TACOTRON_DIR/att_guides
 TACOTRON_FILELIST_DIR=$TACOTRON_DIR/filelists
 
 # TMP_STUFFY
-TMP_DIR=$TMP/tmp
+TMP_DIR=$PWD/tmp/training
 LABEL_DIR=$TMP_DIR/labels
 RAW_F0_DIR=$TMP_DIR/raw_f0
 VALID_LIST_DIR=$TMP_DIR/valid_lists
@@ -141,10 +141,13 @@ do
 done
 
 # Generate list of symbols
-cat $TACOTRON_FILELIST_DIR/metadata_train.psv | cut -d '|' -f4 |tr ' ' $'\n'| sort -u > $TACOTRON_DIR/ph_list
+cat $TACOTRON_FILELIST_DIR/metadata_train.psv | cut -d '|' -f2 | tr ' ' $'\n' |  sort -u > $TACOTRON_DIR/ph_list
 
 # Generate attention guides
 cat $TMP_DIR/merlin_valid_list.scp | \
     parallel --verbose -I {} python scripts/lab2att.py \
              $LABEL_DIR/{}.lab \
              $TACOTRON_ATT_GUIDES_DIR/{}.npy
+
+# Generate PKL files
+python scripts/generate_dataset_pkl.py --metadata $TACOTRON_FILELIST_DIR/metadata_train.psv  $TACOTRON_DIR/mel/ $TACOTRON_DIR
