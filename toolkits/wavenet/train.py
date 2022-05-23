@@ -158,7 +158,7 @@ def to_categorical(y, num_classes=None, dtype='float32'):
 # TODO: I know this is too ugly...
 class _NPYDataSource(FileDataSource):
     def __init__(self, dump_root, col, typ="", speaker_id=None, max_steps=8000,
-                 cin_pad=0, hop_size=256):
+                 cin_pad=0, hop_size=256, meta=""):
         self.dump_root = dump_root
         self.col = col
         self.lengths = []
@@ -169,14 +169,14 @@ class _NPYDataSource(FileDataSource):
         self.cin_pad = cin_pad
         self.hop_size = hop_size
         self.typ = typ
+        self.meta = meta
 
     def collect_files(self):
-        meta = join(self.dump_root, "train.txt")
-        if not exists(meta):
+        if not exists(self.meta):
             paths = sorted(glob(join(self.dump_root, "*-{}.npy".format(self.typ))))
             return paths
 
-        with open(meta, "rb") as f:
+        with open(self.meta, "rb") as f:
             lines = f.readlines()
         l = lines[0].decode("utf-8").split("|")
         assert len(l) == 4 or len(l) == 5
@@ -248,7 +248,8 @@ class PartialyRandomizedSimilarTimeLengthSampler(Sampler):
                 batch_group_size -= batch_group_size % batch_size
 
         self.batch_group_size = batch_group_size
-        assert batch_group_size % batch_size == 0
+        assert self.batch_group_size != 0
+        assert self.batch_group_size % batch_size == 0
 
     def __iter__(self):
         indices = self.sorted_indices.numpy()
@@ -416,7 +417,7 @@ def ensure_divisible(length, divisible_by=256, lower=True):
 
 
 def assert_ready_for_upsampling(x, c, cin_pad):
-    assert len(x) == (len(c) - 2 * cin_pad) * audio.get_hop_size()
+    assert len(x) == (len(c) - 2 * cin_pad) * audio.get_hop_size(), f"{len(x)} != {(len(c.T) - 2 * cin_pad) * audio.get_hop_size()}, {len(c)}, {cin_pad}, {audio.get_hop_size()}"
 
 
 def collate_fn(batch):
@@ -700,7 +701,7 @@ def __train_step(device, phase, epoch, global_step, global_test_step,
     # y : (B, T, 1)
     # c : (B, C, T)
     # g : (B,)
-    train = (phase == "train_no_dev")
+    train = (phase == "train")
     clip_thresh = hparams.clip_thresh
     if train:
         model.train()
@@ -802,7 +803,7 @@ def train_loop(device, model, data_loaders, optimizer, writer, checkpoint_dir=No
     global global_step, global_epoch, global_test_step
     while global_epoch < hparams.nepochs:
         for phase, data_loader in data_loaders.items():
-            train = (phase == "train_no_dev")
+            train = (phase == "train")
             running_loss = 0.
             test_evaluated = False
             for step, (x, y, c, g, input_lengths) in tqdm(enumerate(data_loader)):
@@ -980,17 +981,19 @@ def get_data_loaders(dump_root, speaker_id, test_shuffle=True):
     else:
         max_steps = None
 
-    for phase in ["train_no_dev", "dev"]:
-        train = phase == "train_no_dev"
+    for phase in ["train", "val"]:
+        train = phase == "train"
         X = FileSourceDataset(
             RawAudioDataSource(join(dump_root, phase), speaker_id=speaker_id,
                                max_steps=max_steps, cin_pad=hparams.cin_pad,
-                               hop_size=audio.get_hop_size()))
+                               hop_size=audio.get_hop_size(),
+                               meta=join(dump_root, phase+".txt")))
         if local_conditioning:
             Mel = FileSourceDataset(
                 MelSpecDataSource(join(dump_root, phase), speaker_id=speaker_id,
                                   max_steps=max_steps, cin_pad=hparams.cin_pad,
-                                  hop_size=audio.get_hop_size()))
+                                  hop_size=audio.get_hop_size(),
+                                  meta=join(dump_root, phase+".txt")))
             assert len(X) == len(Mel)
             print("Local conditioning enabled. Shape of a sample: {}.".format(
                 Mel[0].shape))
@@ -1070,7 +1073,7 @@ if __name__ == "__main__":
     # Dataloader setup
     data_loaders = get_data_loaders(dump_root, speaker_id, test_shuffle=True)
 
-    maybe_set_epochs_based_on_max_steps(hparams, len(data_loaders["train_no_dev"]))
+    maybe_set_epochs_based_on_max_steps(hparams, len(data_loaders["train"]))
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
