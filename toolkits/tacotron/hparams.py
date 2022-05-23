@@ -3,8 +3,8 @@
 
 # Here are the input and output data paths (Note: you can override wav_path in preprocess.py)
 wav_path = './bc_2013/wavn'
-data_path = './data'
-attention_path = "./data/att_guides"
+data_path = './bc_2013/data'
+attention_path = "./bc_2013/data/att_guides"
 # model ids are separate - that way you can use a new tts with an old wavernn and vice versa
 # NB: expect undefined behaviour if models were trained on different DSP settings
 voc_model_id = 'bc_2013_mol'
