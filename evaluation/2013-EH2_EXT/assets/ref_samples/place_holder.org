@@ -1,0 +1,5 @@
+Here should be copied the following samples *associated to the natural voice*:
+  - =booksent_2013_0057.wav=
+  - =booksent_2013_0077.wav=
+  - =booksent_2013_0043.wav=
+  - =booksent_2013_0088.wav=

@@ -1,0 +1,42 @@
+.display-1 {
+    text-align: center;
+    width: 100%;
+    padding: 5px;
+    font-size: 4rem;
+}
+
+.justified {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+h1>a,  h1>a:hover {
+    color: unset;
+    text-decoration: unset;
+}
+
+dl {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+dt {
+  float: left;
+  width: 20%;
+  /* adjust the width; make sure the total of both is 100% */
+  padding: 0;
+  margin: 0;
+  margin-top: 10px;
+}
+
+dd {
+  float: left;
+  width: 80%;
+  padding: 0;
+  margin: 0;
+  margin-top: 10px;
+}

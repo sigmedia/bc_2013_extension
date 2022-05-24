@@ -1,0 +1,144 @@
+# Test global information
+entrypoint: "login"
+variables:
+  title: Speech synthesis evaluation
+  authors: Sébastien Le Maguer
+  email: "lemagues@tcd.ie"
+
+# Administration configuration
+admin:
+  entrypoint:
+    mod: admin_panel
+    password: bflzefinlh67s
+    variables:
+      subtitle: Admin Panel
+  mods:
+  - mod: export_bdd
+    variables:
+      subtitle: Download BDD
+      subdescription: Download the database in CSV or SQLite format.
+
+mods:
+  - mod: direct_auth
+
+#   - mod: gdpr
+#     variables:
+#       gdpr_compliance: relax
+#       validate: True
+
+# Structure of the evaluation
+stages:
+  login:
+    type: direct_auth
+    next: info
+
+  info:
+    type: form
+    template: info.tpl
+    next: intro_sim
+
+  intro_sim:
+    type: form
+    template: intro_similarity.tpl
+    next: section_1
+
+  # Similarity test section
+  section_1:
+    type: test
+    template: similarity.tpl
+    next: intro_mos
+    nb_systems_per_step: 1
+    nb_steps: 8
+    nb_step_intro: 0
+    transaction_timeout_seconds: 600
+    variables:
+      subtitle: Section 1
+
+  intro_mos:
+    type: form
+    template: intro_mos.tpl
+    next: section_2
+
+  # MOS Test configuration
+  section_2:
+    type: test
+    template: mos.tpl
+    next: section_3
+    nb_systems_per_step: 1
+    nb_steps: 8
+    nb_step_intro: 0
+    transaction_timeout_seconds: 600
+    variables:
+      subtitle: Section 2
+
+  section_3:
+    type: test
+    template: mos.tpl
+    next: section_4
+    nb_systems_per_step: 1
+    nb_steps: 8
+    nb_step_intro: 0
+    transaction_timeout_seconds: 600
+    variables:
+      subtitle: Section 3
+
+  section_4:
+    type: test
+    template: mos.tpl
+    next: section_5
+    nb_systems_per_step: 1
+    nb_steps: 8
+    nb_step_intro: 0
+    transaction_timeout_seconds: 600
+    variables:
+      subtitle: Section 4
+
+  section_5:
+    type: test
+    template: mos.tpl
+    next: intro_intel
+    nb_systems_per_step: 1
+    nb_steps: 7
+    nb_step_intro: 0
+    transaction_timeout_seconds: 600
+    variables:
+      subtitle: Section 5
+
+  # Intelligibility Test configuration
+  intro_intel:
+    type: form
+    template: intro_intel.tpl
+    next: section_8
+
+
+  section_8:
+    type: test
+    template: intel.tpl
+    next: section_9
+    nb_systems_per_step: 1
+    nb_steps: 7
+    nb_step_intro: 0
+    transaction_timeout_seconds: 600
+    variables:
+      subtitle: Section 6
+
+  section_9:
+    type: test
+    template: intel.tpl
+    next: feedback
+    nb_systems_per_step: 1
+    nb_steps: 7
+    nb_step_intro: 0
+    transaction_timeout_seconds: 600
+    variables:
+      subtitle: Section 7
+
+  feedback:
+    type: form
+    template: feedback.tpl
+    next: end_test
+
+  # End of the test
+  end_test:
+    type: page:user
+    template: end.tpl

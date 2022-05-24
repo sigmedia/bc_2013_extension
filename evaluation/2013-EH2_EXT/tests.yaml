@@ -1,0 +1,232 @@
+section_1:
+  systems:
+    - name: "Natural"
+      data: "section_1/natural.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "FastPitch_WaveNET"
+      data: "section_1/fastpitch_wn.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "FastPitch_WaveGAN"
+      data: "section_1/fastpitch_wg.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "Tacotron_WaveGAN"
+      data: "section_1/tacotron_wg.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "Tacotron_WaveNET"
+      data: "section_1/tacotron_wn.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "K"
+      data: "section_1/K.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "N"
+      data: "section_1/N.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "C"
+      data: "section_1/C.csv"
+      delimiter: "\t"
+      max_samples: 8
+
+section_2:
+  systems:
+    - name: "Natural"
+      data: "section_2/natural.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "FastPitch_WaveNET"
+      data: "section_2/fastpitch_wn.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "FastPitch_WaveGAN"
+      data: "section_2/fastpitch_wg.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "Tacotron_WaveGAN"
+      data: "section_2/tacotron_wg.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "Tacotron_WaveNET"
+      data: "section_2/tacotron_wn.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "K"
+      data: "section_2/K.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "N"
+      data: "section_2/N.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "C"
+      data: "section_2/C.csv"
+      delimiter: "\t"
+      max_samples: 8
+
+section_3:
+  systems:
+    - name: "FastPitch_WaveNET"
+      data: "section_3/fastpitch_wn.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "FastPitch_WaveGAN"
+      data: "section_3/fastpitch_wg.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "Tacotron_WaveGAN"
+      data: "section_3/tacotron_wg.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "Tacotron_WaveNET"
+      data: "section_3/tacotron_wn.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "K"
+      data: "section_3/K.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "N"
+      data: "section_3/N.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "C"
+      data: "section_3/C.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "CTRL"
+      data: "section_3/CTRL.csv"
+      delimiter: "\t"
+      max_samples: 8
+
+section_4:
+  systems:
+    - name: "Natural"
+      data: "section_4/natural.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "FastPitch_WaveNET"
+      data: "section_4/fastpitch_wn.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "FastPitch_WaveGAN"
+      data: "section_4/fastpitch_wg.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "Tacotron_WaveGAN"
+      data: "section_4/tacotron_wg.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "Tacotron_WaveNET"
+      data: "section_4/tacotron_wn.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "K"
+      data: "section_4/K.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "N"
+      data: "section_4/N.csv"
+      delimiter: "\t"
+      max_samples: 8
+    - name: "C"
+      data: "section_4/C.csv"
+      delimiter: "\t"
+      max_samples: 8
+
+section_5:
+  systems:
+    - name: "FastPitch_WaveNET"
+      data: "section_5/fastpitch_wn.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "FastPitch_WaveGAN"
+      data: "section_5/fastpitch_wg.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "Tacotron_WaveGAN"
+      data: "section_5/tacotron_wg.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "Tacotron_WaveNET"
+      data: "section_5/tacotron_wn.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "K"
+      data: "section_5/K.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "N"
+      data: "section_5/N.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "C"
+      data: "section_5/C.csv"
+      delimiter: "\t"
+      max_samples: 7
+
+section_8:
+  systems:
+    - name: "FastPitch_WaveNET"
+      data: "section_8/fastpitch_wn.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "FastPitch_WaveGAN"
+      data: "section_8/fastpitch_wg.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "Tacotron_WaveGAN"
+      data: "section_8/tacotron_wg.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "Tacotron_WaveNET"
+      data: "section_8/tacotron_wn.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "K"
+      data: "section_8/K.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "N"
+      data: "section_8/N.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "C"
+      data: "section_8/C.csv"
+      delimiter: "\t"
+      max_samples: 7
+
+section_9:
+  systems:
+    - name: "FastPitch_WaveNET"
+      data: "section_9/fastpitch_wn.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "FastPitch_WaveGAN"
+      data: "section_9/fastpitch_wg.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "Tacotron_WaveGAN"
+      data: "section_9/tacotron_wg.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "Tacotron_WaveNET"
+      data: "section_9/tacotron_wn.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "K"
+      data: "section_9/K.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "N"
+      data: "section_9/N.csv"
+      delimiter: "\t"
+      max_samples: 7
+    - name: "C"
+      data: "section_9/C.csv"
+      delimiter: "\t"
+      max_samples: 7
