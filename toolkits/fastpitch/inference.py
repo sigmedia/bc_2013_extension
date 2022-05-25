@@ -306,7 +306,6 @@ def main():
     [DLLogger.log("PARAMETER", {k: v}) for k, v in vars(args).items()]
 
     device = torch.device('cuda' if args.cuda else 'cpu')
-    device = "cpu"
 
     if args.fastpitch != 'SKIP':
         generator = load_and_setup_model(
