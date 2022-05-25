@@ -21,6 +21,7 @@ WG_OUTPUT_DIR=$OUTPUT_ROOT_DIR/wavegan
 # Helper input files
 : ${PH_DICT:=$PWD/src/ph_list}
 : ${BS:=32}
+: ${NB_PROC:=4}
 
 # Define Toolkit/Experiment paths
 FP_TOOLKIT_DIR=$PWD/toolkits/fastpitch
@@ -49,7 +50,8 @@ if [[ " ${EXPES[*]} " == *" fp "* ]]; then
 
     if [[ " ${EXPES[*]} " == *" wg "* ]]; then
         mkdir -p "$FP_OUTPUT_DIR/wg"
-        # cp -rfv "$PWD/test_files/${BASENAME}.h5" "$FP_OUTPUT_DIR/wg"
+        ls -1 $FP_OUTPUT_DIR/orig/*.mel | \
+            xargs -I {} -P $NB_PROC bash -c "base=\$(basename {} .mel); echo \$base; python toolkits/fastpitch/scripts/fastpitch2voc.py -V wg {} $FP_OUTPUT_DIR/wg/\$base.h5"
 
         # Rendering
         (
@@ -68,8 +70,9 @@ if [[ " ${EXPES[*]} " == *" fp "* ]]; then
 
 
     if [[ " ${EXPES[*]} " == *" wn "* ]]; then
-        mkdir -p "$WN_OUTPUT_DIR"
-        cp -rfv "$PWD/test_files/${BASENAME}-feats.npy" "$WN_OUTPUT_DIR"
+        mkdir -p "$FP_OUTPUT_DIR/wn"
+        ls -1 $FP_OUTPUT_DIR/orig/*.mel | \
+            xargs -I {} -P $NB_PROC bash -c "base=\$(basename {} .mel); echo \$base; python toolkits/fastpitch/scripts/fastpitch2voc.py -V wn {} $FP_OUTPUT_DIR/wn/\$base-feats.npy"
 
         # Rendering
         python $WN_TOOLKIT_DIR/evaluate.py \
@@ -81,8 +84,6 @@ if [[ " ${EXPES[*]} " == *" fp "* ]]; then
     fi
 fi
 
-exit 0
-
 ###################
 ### Tacotron
 #############################################################################
@@ -90,7 +91,7 @@ if [[ " ${EXPES[*]} " == *" tac "* ]]; then
     mkdir -p $TAC_OUTPUT_DIR/orig
     (
         cd $TAC_TOOLKIT_DIR;
-        echo python gen_tacotron.py \
+        python gen_tacotron.py \
              --symbol-dict $PH_DICT \
              --hp_file hparams.py \
              --tts_weights $TAC_MODEL \
@@ -99,6 +100,39 @@ if [[ " ${EXPES[*]} " == *" tac "* ]]; then
              -I $TEST_FILE \
              none
     )
-fi
 
-exit 0
+    if [[ " ${EXPES[*]} " == *" wg "* ]]; then
+        mkdir -p "$TAC_OUTPUT_DIR/wg"
+        ls -1 $TAC_OUTPUT_DIR/orig/*.npy | \
+            xargs -I {} -P $NB_PROC bash -c "base=\$(basename {} .npy); echo \$base; python toolkits/tacotron/tacotron2voc.py -V wg {} $TAC_OUTPUT_DIR/wg/\$base.h5"
+
+        # Rendering
+        (
+	        cd $WG_EXP_DIR
+	        . ./cmd.sh || exit 1
+	        . ./path.sh || exit 1
+
+	        ${cuda_cmd} --gpu "1" /dev/stdout \
+		                parallel-wavegan-decode \
+		                --dumpdir "$TAC_OUTPUT_DIR/wg" \
+		                --checkpoint $WG_MODEL \
+		                --outdir "$TAC_OUTPUT_DIR/wg" \
+		                --verbose "1" | tee "$TAC_OUTPUT_DIR/wg/decode.log"
+        )
+    fi
+
+
+    if [[ " ${EXPES[*]} " == *" wn "* ]]; then
+        mkdir -p "$TAC_OUTPUT_DIR/wn"
+        ls -1 $TAC_OUTPUT_DIR/orig/*.npy | \
+            xargs -I {} -P $NB_PROC bash -c "base=\$(basename {} .npy); echo \$base; python toolkits/tacotron/tacotron2voc.py -V wn {} $TAC_OUTPUT_DIR/wn/\$base-feats.npy"
+
+        # Rendering
+        python $WN_TOOLKIT_DIR/evaluate.py \
+	         $TAC_OUTPUT_DIR/wn \
+	         $WN_MODEL_DIR/checkpoint_latest.pth \
+	         $TAC_OUTPUT_DIR/wn \
+	         --preset $WN_MODEL_DIR/hparams.json \
+	         --hparams="batch_size=${BS}"
+    fi
+fi
