@@ -174,7 +174,3 @@ if __name__ == "__main__":
     logger.debug("=== Check Final")
     logger.debug("\n" + str(full_df.head()))
     full_df.to_csv(args.output_df_file, sep="\t", index=False)
-
-    # Compute mean for fun
-    m = full_df.groupby(["system", "utt_id", "text"])["score"].agg(["mean", "std", "min", "max", "count"])
-    print(m)
