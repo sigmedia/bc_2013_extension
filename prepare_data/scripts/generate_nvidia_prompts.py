@@ -41,7 +41,7 @@ with open(args.full_prompt_file) as f:
         elts = l.strip().split("|")
         if elts[0] in set_utts:
             # build pathes (FIXME: hardcoded)
-            mel_path = f"mels/{elts[0]}.pt"
+            mel_path = f"mel/{elts[0]}.pt"
 
             if format == "tacotron":
                 list_prompts.append(f"{elts[0]}|{elts[1]}")
