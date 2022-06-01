@@ -3,6 +3,7 @@
 ##################
 ### Define variables
 ####################################################################################
+: ${NUM_CPUS:=4}
 
 # Configuration directories
 MARY_CONFIG_TEMPLATE=$PWD/configurations/training_config_template.json
@@ -40,7 +41,7 @@ MARY_CONFIG=$TMP_DIR/mary_config.json
 
 mkdir -p $RAW_F0_DIR $VALID_LIST_DIR $LABEL_DIR
 mkdir -p $FASTPITCH_F0_DIR $FASTPITCH_FILELIST_DIR $FASTPITCH_DUR_DIR
-mkdir -p $TACOTRON_FILELIST_DIR $TACOTRON_ATT_GUIDES
+mkdir -p $TACOTRON_FILELIST_DIR $TACOTRON_ATT_GUIDES_DIR
 
 ##################
 ### Generate labels using MaryTTS and Kaldi
@@ -53,7 +54,7 @@ echo "# =============================================================="
 sed "s%### TRAIN_DIR ###%$CORPUS_ROOT_DIR%g" $MARY_CONFIG_TEMPLATE > $MARY_CONFIG
 (
     cd $PWD/../toolkits/marytts/hts-label-generation;
-    ./gradlew b --max-workers=30 -Dconfig=$MARY_CONFIG \
+    ./gradlew b --max-workers=$NUM_CPUS -Dconfig=$MARY_CONFIG \
         --include-build=../marytts \
         --include-build=../gradle-marytts-kaldi-mfa-plugin \
         --include-build=../gradle-marytts-align-plugin \
@@ -92,7 +93,7 @@ echo "# =============================================================="
 
 # Generate the coefficient files needed for fastpitch
 cat $TMP_DIR/merlin_valid_list.scp | \
-    parallel --verbose -I {} python scripts/merlin2fastpitch.py \
+    xargs -P $NUM_CPUS -I {} python scripts/merlin2fastpitch.py \
              $LABEL_DIR/{}.lab \
              $F0_DIR/{}.f0 \
              $FASTPITCH_DUR_DIR/{}.pt \
@@ -141,11 +142,11 @@ do
 done
 
 # Generate list of symbols
-cat $TACOTRON_FILELIST_DIR/metadata_train.psv | cut -d '|' -f2 | tr ' ' $'\n' |  sort -u > $TACOTRON_DIR/ph_list
+cat $TACOTRON_FILELIST_DIR/metadata_train.psv | cut -d '|' -f4 |tr ' ' $'\n'| sort -u > $TACOTRON_DIR/ph_list
 
 # Generate attention guides
 cat $TMP_DIR/merlin_valid_list.scp | \
-    parallel --verbose -I {} python scripts/lab2att.py \
+    xargs -P $NUM_CPUS -I {} python scripts/lab2att.py \
              $LABEL_DIR/{}.lab \
              $TACOTRON_ATT_GUIDES_DIR/{}.npy
 
