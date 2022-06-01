@@ -24,6 +24,8 @@ import org.m2ci.msp.jtgt.io.*
 
 class AddDurationToUtt extends DefaultTask {
 
+    final Set<String> setPauses = ["", "sp", "sil", "pau"]
+
     @Input
     final Property<String> phTierName = project.objects.property(String)
 
@@ -66,9 +68,7 @@ class AddDurationToUtt extends DefaultTask {
                 int nb_ph
                 for (int i=0; i<tgt_segments.size(); i++) {
                     Annotation tmp = tgt_segments.get(i);
-                    if ((tmp.getText() != "") &&
-                        (tmp.getText() != "sil") &&
-                        (tmp.getText() != "sp"))
+                    if (! setPauses.contains(tmp.getText()))
                     {
                         nb_ph += 1
                     }
@@ -85,16 +85,35 @@ class AddDurationToUtt extends DefaultTask {
 
                     tmp = "";
                     for (int i=0; i<tgt_segments.size(); i ++) {
-                        if ((tgt_segments.get(i).getText() != "") &&
-                            (tgt_segments.get(i).getText() != "sil") &&
-                            (tgt_segments.get(i).getText() != "sp"))
+                        if (! setPauses.contains(tgt_segments.get(i).getText()))
                         {
                             tmp += tgt_segments.get(i).getText() + ", "
                         }
                     }
                     project.logger.debug("tgt part: " + tmp);
-                    throw new Exception(String.format("(Phone) utt segs (%d) != tgt segs (%d)", phonemes.size(), nb_ph))
+                    throw new Exception(String.format("[%s] (Phone) utt segs (%d) != tgt segs (%d)", inUttFile.name - '.json', phonemes.size(), nb_ph))
                 }
+
+                // Some pauses are duplicated, let's merge them
+                // NOTE: why does kaldi do this in a first place?!
+                ArrayList<Annotation> tgt_segments_reduced = new ArrayList<Annotation>()
+                int offset = 0;
+                for (int i=0; i<tgt_segments.size()-1; i++) {
+                    if (tgt_segments.get(i).getText() == "") {
+                        Annotation last_elt = tgt_segments_reduced.get(tgt_segments_reduced.size()-1)
+                        if (last_elt.getText() == "sp") {
+                            last_elt.setEnd(tgt_segments.get(i).getEnd())
+                        } else {
+                            Annotation an = tgt_segments.get(i)
+                            an.setText("sil")
+                            tgt_segments_reduced.add(an)
+                        }
+                    } else {
+                        tgt_segments_reduced.add(tgt_segments.get(i))
+                    }
+                }
+                tgt_segments_reduced.add(tgt_segments.get(tgt_segments.size()-1))
+
 
                 // Merge Utts
                 Sequence<Segment> segments = (Sequence<Segment>) utt.getSequence(SupportedSequenceType.SEGMENT)
@@ -103,77 +122,70 @@ class AddDurationToUtt extends DefaultTask {
                 Relation rel_ph = utt.getRelation(SupportedSequenceType.SEGMENT, SupportedSequenceType.PHONE)
                 Relation rel_nss = utt.getRelation(SupportedSequenceType.SEGMENT, SupportedSequenceType.NSS)
 
-                int an_offset = 0
                 int nss_index = 0
-                for (int i=0; i<tgt_segments.size(); i++) {
-                    Annotation an = tgt_segments[i]
-
-                    // Ignore last blank if necessary!
-                    if ((i-an_offset) >= segments.size() &&
-                        (i == (tgt_segments.size()-1)) &&
-                        (an.getText() == "")) {
-                        project.logger.debug("ok ignore !");
-                        continue;
-                    }
+                for (int i=0; i<tgt_segments_reduced.size(); i++) {
+                    Annotation an = tgt_segments_reduced[i]
 
                     // Get Phone sequence
                     project.logger.debug("an = " + an.getText());
-                    Phoneme[] seg_ph = (Phoneme[]) rel_ph.getRelatedItems(i-an_offset)
+                    Phoneme[] seg_ph = (Phoneme[]) rel_ph.getRelatedItems(i)
                     if (seg_ph.size() > 0) {
                         project.logger.debug(String.format("related phone = %s", seg_ph.toString()));
                     }
 
                     // Get NSS Sequence
-                    NSS[] seg_nss = (NSS[]) rel_nss.getRelatedItems(i-an_offset)
+                    NSS[] seg_nss = (NSS[]) rel_nss.getRelatedItems(i)
                     if (seg_nss.size() > 0) {
                         project.logger.debug(String.format("related nss = %s", seg_nss.toString()));
                     }
 
                     // Phone
-                    if ((an.getText() != "") &&
-                        (an.getText() != "sil") &&
-                        (an.getText() != "sp"))
+                    if (! setPauses.contains(an.getText()))
                     {
-                        Phoneme[] segments_ph = (Phoneme[]) rel_ph.getRelatedItems(i-an_offset)
+                        Phoneme[] segments_ph = (Phoneme[]) rel_ph.getRelatedItems(i)
 
                         // Normal scenario: phone related to one and only on phone
                         if (segments_ph.size() == 1) {
-                            Segment s = segments[i-an_offset]
+                            Segment s = segments[i]
                             s.setStart(an.getStart()*1000)
                             s.setDuration(an.getEnd()*1000 - an.getStart()*1000)
                         }
 
                         // On the sequence side => it should be an NSS
                         else if (segments_ph.size() == 0) {
-                            int[] segments_nss = rel_nss.getRelatedIndexes(i-an_offset)
+                            int[] segments_nss = rel_nss.getRelatedIndexes(i)
                             if (segments_nss.size() != 1) {
-                                throw new Exception("Invalid number of NSS (${segments_nss.size()}) associated to the index (${i-an_offset})")
+                                throw new Exception("Invalid number of NSS (${segments_nss.size()}) associated to the index (${i})")
                             }
+
+                            // Remove the NSS and the related segment from the utterance
                             nss_index = segments_nss[0]
                             nss.remove(nss_index)
-                            segments.remove(i-an_offset)
-                            an_offset += 1
+                            segments.remove(i)
+
+                            // Reset the counter to reanalyze the current annotation
+                            i = i - 1
                         }
 
                         // annotation related to too many phones
                         else {
-                            throw new Exception(String.format("Segment %d is related to %d phones (> 1), which is invalid!", i-an_offset, segments_ph.size()))
+                            throw new Exception("Segment ${i} is related to ${segments_ph.size()} phones (> 1), which is invalid!")
                         }
                     }
 
                     // Error (unknown token)
                     else if (an.getText() == "spn") {
-                        throw new Exception(String.format("Segment %d is related to an unknown token!", i-an_offset, segments.size()))
+                        throw new Exception("Segment ${i} is related to an unknown token!")
                     }
 
                     // NSS
                     else {
-                        NSS[] segments_nss = (NSS[]) rel_nss.getRelatedItems(i-an_offset)
+                        NSS[] segments_nss = (NSS[]) rel_nss.getRelatedItems(i)
 
 
                         // Normal scenario: NSS related to a NSS
                         if (segments_nss.size() == 1) {
-                            Segment s = segments[i-an_offset]
+                            Segment s = segments[i]
                             s.setStart(an.getStart()*1000)
                             s.setDuration(an.getEnd()*1000 - an.getStart()*1000)
                         }
@@ -184,13 +196,13 @@ class AddDurationToUtt extends DefaultTask {
                             nss.add(nss_index, tmp_nss)
 
                             Segment s = new Segment(an.getStart()*1000, an.getEnd()*1000 - an.getStart()*1000)
-                            segments.add(i-an_offset, s)
-                            rel_nss.addRelation(i-an_offset, nss_index)
+                            segments.add(i, s)
+                            rel_nss.addRelation(i, nss_index)
                         }
 
                         // Annotations related to too many NSS
                         else {
-                            throw new Exception(String.format("Segment %d is related to %d NSS, which is invalid!", i-an_offset, segments_nss.size()))
+                            throw new Exception(String.format("Segment %d is related to %d NSS, which is invalid!", i, segments_nss.size()))
                         }
 
                         nss_index += 1
@@ -200,7 +212,7 @@ class AddDurationToUtt extends DefaultTask {
                 // utt.addSequence(SupportedSequenceType.NSS, nss);
                 // utt.setRelation(SupportedSequenceType.SEGMENT, SupportedSequenceType.PHONE, rel_ph);
 
-                // FIXME: update the relation as we have the reverse. Check if native!
+                // Update the relation as we have the reverse
                 utt.setRelation(SupportedSequenceType.NSS, SupportedSequenceType.SEGMENT, rel_nss.getReverse());
 
                 // Apply dedicated serializer and save the UTT
@@ -208,7 +220,7 @@ class AddDurationToUtt extends DefaultTask {
                 destUttDir.file(inUttFile.name).get().asFile.withWriter('UTF-8') { out ->
                     out.println output
                 }
-            } catch (FileNotFoundException ex) {
+            } catch (Exception ex) {
                 project.logger.error "Excluding $inUttFile.name during duration alignment: ${ex}" // FIXME: more detail message
             }
         }
