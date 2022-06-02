@@ -26,6 +26,7 @@ FASTPITCH_FILELIST_DIR=$FASTPITCH_DIR/filelists
 #   - Tacotron directories
 TACOTRON_DIR=$OUTPUT_ROOT_DIR/tacotron
 TACOTRON_ATT_GUIDES_DIR=$TACOTRON_DIR/att_guides
+TACOTRON_MEL_DIR=$TACOTRON_DIR/mel
 TACOTRON_FILELIST_DIR=$TACOTRON_DIR/filelists
 
 # TMP_STUFFY
@@ -147,8 +148,12 @@ cat $TACOTRON_FILELIST_DIR/metadata_train.psv | cut -d '|' -f4 |tr ' ' $'\n'| so
 # Generate attention guides
 cat $TMP_DIR/merlin_valid_list.scp | \
     xargs -P $NUM_CPUS -I {} python scripts/lab2att.py \
-             $LABEL_DIR/{}.lab \
-             $TACOTRON_ATT_GUIDES_DIR/{}.npy
+          $LABEL_DIR/{}.lab \
+          $TACOTRON_MEL_DIR/{}.npy \
+          $TACOTRON_ATT_GUIDES_DIR/{}.npy
 
 # Generate PKL files
-python scripts/generate_dataset_pkl.py --metadata $TACOTRON_FILELIST_DIR/metadata_train.psv  $TACOTRON_DIR/mel/ $TACOTRON_DIR
+python scripts/generate_dataset_pkl.py \
+       --metadata $TACOTRON_FILELIST_DIR/metadata_train.psv  \
+       $TACOTRON_MEL_DIR \
+       $TACOTRON_DIR

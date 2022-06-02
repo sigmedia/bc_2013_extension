@@ -105,17 +105,10 @@ def define_argument_parser() -> argparse.ArgumentParser:
     # Add options
     parser.add_argument(
         "-f",
-        "--frameshift_fastpitch",
+        "--frameshift",
         type=float,
         default=16,
-        help="Frameshift (in ms) of fastpitch",
-    )
-    parser.add_argument(
-        "-F",
-        "--frameshift_merlin",
-        type=float,
-        default=5,
-        help="Frameshift (in ms) of merlin",
+        help="Frameshift (in ms)",
     )
     parser.add_argument("-l", "--log_file", default=None, help="Logger file")
     parser.add_argument(
@@ -128,6 +121,7 @@ def define_argument_parser() -> argparse.ArgumentParser:
 
     # Add arguments
     parser.add_argument("merlin_lab_file", help="The label file generated for merlin")
+    parser.add_argument("mel_file", help="The mel spectrogram file")
     parser.add_argument(
         "attention_file",
         help="The duration file to generate for fastpitch (output)",
@@ -137,14 +131,49 @@ def define_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-###############################################################################
-#  Envelopping
-###############################################################################
-if __name__ == "__main__":
-    # Initialization
-    arg_parser = define_argument_parser()
-    args = arg_parser.parse_args()
-    logger = configure_logger(args)
+def dur2guide(dur: np.ndarray, mel_nb_frames: int) -> np.ndarray:
+    """Generate the attention guide give the duration array and the maximal number of frames
+
+    Parameters
+    ----------
+    dur: ndarray (nb_phones,)
+        The array of phone durations
+    mel_nb_frames: unsigned int
+        The number of frames of the mel spectrogram
+
+    Returns
+    -------
+    np.ndarray (nb_phones, mel_nb_frames)
+        the array of duration per phone
+    """
+    att_guide = np.zeros((dur.shape[0], mel_nb_frames))
+    cur_i = 0
+    for d_i, d in enumerate(dur):
+        for i in range(int(d.item())):
+            att_guide[d_i, cur_i] = 1
+            cur_i += 1
+
+    for i in range(cur_i, mel_nb_frames):
+        att_guide[-1, i] = 1
+
+    return att_guide.T
+
+
+def lab2dur(label_file_name: str, frameshift: int) -> np.ndarray:
+    """Load the duration from a given label file
+
+    Parameters
+    ----------
+    label_file_name: str
+       The path to the label file
+    frameshift: int
+       The frameshift in ms
+
+    Returns
+    -------
+    np.ndarray (nb_phones,)
+        the array of duration per phone
+    """
 
     # Extract duration from label
     durations = []
@@ -171,15 +200,47 @@ if __name__ == "__main__":
             total_dur += dur
             durations.append(dur)
 
-    dur_vector = np.round(np.array(durations) / args.frameshift_fastpitch)
+    return np.round(np.array(durations) / frameshift)
 
-    # Generate attension matrix from duration vectory
-    nb_frames = int(dur_vector.sum())
-    att_matrix = np.zeros((nb_frames, dur_vector.shape[0]))
-    cum_i = 0
-    for i_ph, cur_dur in enumerate(dur_vector):
-        for _ in range(int(cur_dur)):
-            att_matrix[cum_i][i_ph] = 1
-            cum_i += 1
 
-    np.save(args.attention_file,att_matrix)
+###############################################################################
+#  Envelopping
+###############################################################################
+if __name__ == "__main__":
+    # Initialization
+    arg_parser = define_argument_parser()
+    args = arg_parser.parse_args()
+    logger = configure_logger(args)
+
+    # Load the duration
+    dur = lab2dur(args.merlin_lab_file, args.frameshift)
+
+    # Ensure compatibility between the duration and number of frames
+    mel_nb_frames = np.load(args.mel_file).shape[1]
+
+    if mel_nb_frames < int(dur.sum().item()):
+        logger.warning(
+            f'The file "{args.mel_file}" contains {mel_nb_frames} which is less than the expected durations {int(dur.sum().item())}, trying to patch'
+        )
+
+        # We authorize a fix only in the two last segments (the last one being a silence!)
+        # FIXME: this is really patchy!
+        diff = mel_nb_frames - int(dur.sum().item())
+        if np.abs(diff) < (dur[-1] + dur[-2]).item():
+            dur[-1] += diff
+            if dur[-1] <= 0:
+                dur[-2] += dur[-1] - 1
+                dur[-1] = 1
+        else:
+            logger.error(
+                f'I don\'t know how to deal with the file "{basename}": mel_nb_frames={mel_nb_frames}, diff_with_dur={diff}, last_phones_durations={dur[-4:]}; move to the next file'
+            )
+            sys.exit(-1)
+    else:
+        logger.debug(
+            f'The file "{args.mel_file}" contains {mel_nb_frames} and the expected total duration is {int(dur.sum().item())}'
+        )
+
+    # Generate attention guideline and save it
+    att = dur2guide(dur, mel_nb_frames)
+    np.save(args.attention_file, att)
