@@ -12,10 +12,55 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="default.css" />
 #+BIBLIOGRAPHY: references.bib
 
+The goal of this repository is to share the toolkits, scripts and configurations used to extend the blizzard 2013-EH2 by adding modern neural voices.
+
 * TODO Overview of this repository
 
+This repository is organized around the following structure:
+
+#+begin_example
+  .
+  ├── bc_extension_cpu.yaml
+  ├── bc_extension_gpu.yaml
+  ├── README.org
+  ├── references.bib
+  ├── evaluation
+  │   ├── run.sh
+  │   └── scripts
+  ├── helpers
+  │   ├── backup_models.sh
+  │   └── render.sh
+  ├── prepare_data
+  │   ├── 01_extract_acoustic.sh
+  │   ├── 02_extract_training_labels.sh
+  │   ├── 03_extract_synthesis_labels.sh
+  │   ├── configurations
+  │   └── scripts
+  ├── src
+  │   ├── ph_list
+  │   ├── test
+  │   └── train
+  └── toolkits
+      ├── fastpitch
+      ├── marytts
+      ├── parallel_wavegan
+      ├── tacotron
+      └── wavenet
+#+end_example
+
+Here is the description of the key files/directories:
+  - =bc_extension_gpu.yaml= :: conda environment configuration assuming GPUs are accessible
+  - =bc_extension_cpu.yaml= :: conda environment configuration when no GPUs are available
+  - =README.org= :: this file
+  - =references.bib= :: the bibtex containing all the references used in this repository
+  - =prepare_data= :: the directory providing the scripts and configurations needed to prepare the data (i.e. extract features, prompts, ...) to run the training and the synthesis
+  - =helpers= :: the directory containing additional scripts used to backup the models, achieve the synthesis, ...
+  - =evaluation= :: the directory containing the resources to analyze the subjective evaluation results and compute some additional objective evaluation bits
+  - =toolkits= :: the directory containing the toolkits necessary to conduct the experiments (see further on how they are used)
+  - =src= :: the directory containing the data needed to run the experiments ()
+
 * Reproducing the experiments
-** TODO Pre-requisites
+** Pre-requisites
 This repository relies on =java= and =gradle= to extract the labels as well as =python=:
   - The code has been tested using =java 11=. You can install it using [[https://sdkman.io/install][sdkman]].
   - =gradle= is using wrappers, so no dependencies have to be explicitly installed
@@ -98,7 +143,7 @@ Here is the description for the used variables:
   - =BS= :: the batch size
   - =PH_DICT= :: the path to the list of phonemes used in the corpus (if not defined, it will default to =RADIO_ARPABET= & =ARCTIC=)
 
-*** TODO Tacotron
+*** Tacotron
 For Tacotron, the training happens in the directory =toolkits/tacotron=.
 The first thing to do is linking the dataset to what has been extracted during the data preparation:
 
@@ -124,7 +169,11 @@ To do so, run the following command:
 For this command, the models will be back up in the directory =models=.
 Change the argument if you want to change the backup directory
 
-** TODO Synthesis
+** Synthesis
+
+#+begin_src shell :results output replace
+  EXPES="fp tac wg wn" bash helpers/render.sh
+#+end_src
 
 ** Parsing the evaluation results
 Simply go to the directory =evaluation= and run:
