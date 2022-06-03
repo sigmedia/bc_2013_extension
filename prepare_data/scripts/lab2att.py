@@ -233,7 +233,7 @@ if __name__ == "__main__":
                 dur[-1] = 1
         else:
             logger.error(
-                f'I don\'t know how to deal with the file "{basename}": mel_nb_frames={mel_nb_frames}, diff_with_dur={diff}, last_phones_durations={dur[-4:]}; move to the next file'
+                f'I don\'t know how to deal with the file "{args.mel_file}": mel_nb_frames={mel_nb_frames}, diff_with_dur={diff}, last_phones_durations={dur[-4:]}; move to the next file'
             )
             sys.exit(-1)
     else:
