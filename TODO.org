@@ -1,0 +1,13 @@
+* TODO Fix environment files
+- [ ] cpu
+- [ ] gpu
+* TODO Link to dataset archive
+- [ ] anonymize data
+- [ ] generate archive
+- [ ] store it somewhere
+- [ ] add download script
+* TODO Link to models archive
+- [ ] generate archive
+- [ ] store it somewhere
+- [ ] add download script
+* TODO Finalize README
