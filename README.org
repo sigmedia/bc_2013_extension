@@ -13,9 +13,7 @@
 #+BIBLIOGRAPHY: references.bib
 
 #+begin_center
-#+html: <p align="center">
 This respository is currently *IN PROGRESS!!!!!* It will be finalize for Interspeech 2022
-#+html: </p>
 #+end_center
 
 The goal of this repository is to share the toolkits, scripts and configurations used to extend the blizzard 2013-EH2 by adding modern neural voices.
@@ -63,7 +61,7 @@ Here is the description of the key files/directories:
   - =helpers= :: the directory containing additional scripts used to backup the models, achieve the synthesis, ...
   - =evaluation= :: the directory containing the resources to analyze the subjective evaluation results and compute some additional objective evaluation bits
   - =toolkits= :: the directory containing the toolkits necessary to conduct the experiments (see further on how they are used)
-  - =src= :: the directory containing the data needed to run the experiments ()
+  - =src= :: the directory containing the data needed to run the experiments
 
 * Reproducing the experiments
 ** Pre-requisites

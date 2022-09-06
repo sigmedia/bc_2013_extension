@@ -50,7 +50,7 @@ for i_file, f0_values in enumerate(f0_file_contents):
     # Set unvoiced segment to 0
     f0_values[zero_idx] = 0
 
-    # Save n ormalizer
+    # Save normalizer
     f0_tensor = torch.Tensor(f0_values)
     torch.save(f0_tensor, os.path.join(args.normalized_f0_dir, f"{basenames[i_file]}.pt"))
 
