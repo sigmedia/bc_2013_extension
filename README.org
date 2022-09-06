@@ -71,6 +71,9 @@ This repository relies on =java= and =gradle= to extract the labels as well as =
   - for python, it is easier to create a conda environment:
     - [[file:bc_extension_gpu.yaml]] :: defines the environment for a use on *GPU (recommended)*
     - [[file:bc_extension_cpu.yaml]] :: defines the environment for a use on *CPU* (test for synthesis)
+  - *Additional python packages* which need to be installed *in the environment* (so after activating it!):
+    - dllogger :: https://github.com/NVIDIA/dllogger
+    - apex :: https://github.com/NVIDIA/apex
 
 ** Data preparation
 *** For training
