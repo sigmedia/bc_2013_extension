@@ -12,13 +12,16 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="default.css" />
 #+BIBLIOGRAPHY: references.bib
 
+* Warning Message
+
 #+begin_center
-This respository is currently *IN PROGRESS!!!!!* It will be finalize for Interspeech 2022
+*IN PROCGRESS*: 2 archives are in preparation: one containing the subjective evaluation (samples + anonymize results) and one containing the models. 
+The archives and the download process will ready early-october.
 #+end_center
 
 The goal of this repository is to share the toolkits, scripts and configurations used to extend the blizzard 2013-EH2 by adding modern neural voices.
 
-* TODO Overview of this repository
+* Overview of this repository
 
 This repository is organized around the following structure:
 
