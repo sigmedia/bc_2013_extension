@@ -17,7 +17,7 @@ The goal of this repository is to share the toolkits, scripts and configurations
 * Warning Message
 
 #+begin_center
-*IN PROCGRESS*: 2 archives are in preparation: one containing the subjective evaluation (samples + anonymize results) and one containing the models. 
+*IN PROGRESS*: 2 archives are in preparation: one containing the subjective evaluation (samples + anonymize results) and one containing the models. 
 The archives and the download process will ready early-october.
 #+end_center
 
