@@ -145,6 +145,7 @@ dependencies:
   - pyasn1
   - pyasn1-modules
   - pycparser
+  - pydantic=1.10.10
   - pygments
   - pyjwt
   - pyopenssl

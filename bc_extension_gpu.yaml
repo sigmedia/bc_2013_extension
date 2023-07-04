@@ -1,4 +1,4 @@
-name: fastpitch_wavenet
+name: bc_extension_gpu
 channels:
   - conda-forge
   - defaults
@@ -155,6 +155,7 @@ dependencies:
   - pyasn1
   - pyasn1-modules
   - pycparser
+  - pydantic=1.10.10
   - pygments
   - pyjwt
   - pyopenssl
@@ -225,8 +226,7 @@ dependencies:
   - zlib
   - zstd
   - pip:
-    - argcomplete
-    - dllogger
+    - git+https://github.com/NVIDIA/dllogger.git
     - fastdtw
     - filelock
     - gdown
