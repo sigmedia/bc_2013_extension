@@ -1,0 +1,1 @@
+A board that pointed writes the coins.
