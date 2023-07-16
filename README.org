@@ -188,7 +188,7 @@ bash run.sh
 The results will be available in the directory =output=.
 
 * Resources
-The models obtained for the experiments are available at this address: https://www.cstr.ed.ac.uk/projects/blizzard/ under the section *models* (**to access these models, you need to obtain a license for [The English audiobook data for the Blizzard Challenge 2013](https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/), then use the same credentials.
+The models obtained for the experiments are available at this address: https://www.cstr.ed.ac.uk/projects/blizzard/ under the section *models* (*to access these models, you need to obtain a license for [The English audiobook data for the Blizzard Challenge 2013](https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/)*, then use the same credentials).
 
 The samples are available and subjective evaluation results are available at this address: https://data.cstr.ed.ac.uk/blizzard/wavs_and_scores/2013-EH2-EXT.tar.gz
 
