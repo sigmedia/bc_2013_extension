@@ -11,7 +11,7 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.9.1'
 
     // Maths/graph
-    compile group: 'com.twmacinta', name: 'fast-md5', version: '2.7.1'
+    compile group: 'com.joyent.util', name: 'fast-md5', version: '2.7.1'
     compile group: 'colt', name: 'colt', version: '1.2.0'
     compile group: "org.jgrapht", name: "jgrapht-core", version: "1.3.0"
 

@@ -60,9 +60,33 @@ Here is the description of the key files/directories:
   - =src= :: the directory containing the data needed to run the experiments
 
 * Reproducing the experiments
-** Pre-requisites
+** Java pre-requisites (Label generation)
+Following the shutdown of bintray, the configuration of MaryTTS has been updated.
+
+- install sdkman (see https://sdkman.io/install/) and maven (google to find this for your operating system)
+- activate the environment
+
+#+begin_src sh
+  sdk env activate
+#+end_src
+
+- Install JTok
+
+#+begin_src sh
+  (cd toolkits/marytts/jtok; mvn install)
+#+end_src
+
+- Install MaryTTS
+
+#+begin_src sh
+  (cd toolkits/marytts/marytts; ./gradlew publishToMavenLocal)
+#+end_src
+
+MaryTTS should now be ready to use!
+
+** Pre-requisites (Training and synthesis)
 This repository relies on =java= and =gradle= to extract the labels as well as =python=:
-  - The code has been tested using =java 11=. You can install it using [[https://sdkman.io/install][sdkman]].
+  - The code has been tested using =java 11= (this is a restrict). You can install it using
   - =gradle= is using wrappers, so no dependencies have to be explicitly installed
   - for python, it is easier to create a conda environment:
     - [[file:bc_extension_gpu.yaml]] :: defines the environment for a use on *GPU (recommended)*
@@ -217,6 +241,7 @@ Please refer to the bibtex file [[file:references.bib]] to access the full entry
 | Software      | Description         | Implementation                                                                                    |
 |---------------+---------------------+---------------------------------------------------------------------------------------------------|
 | MaryTTS       | [cite:@Steiner2018] | https://github.com/marytts/marytts                                                                |
+| JTok          |                     | https://github.com/DFKI-MLT/JTok                                                                  |
 | Pyworld/World | [cite:@Morise2016]  | https://github.com/mmorise/World, https://github.com/JeremyCCHsu/Python-Wrapper-for-World-Vocoder |
 | FlexEval      | [cite:@Fayet2020]   | https://gitlab.inria.fr/expression/tools/FlexEval                                                 |
 

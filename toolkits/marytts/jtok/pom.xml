@@ -1,0 +1,234 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.dfki.lt.jtok</groupId>
+  <artifactId>jtok-core</artifactId>
+  <version>2.1.21</version>
+  <packaging>jar</packaging>
+
+  <name>JTok</name>
+  <description>A Java-based configurable tokenizer and sentence splitter</description>
+
+  <scm>
+    <url>https://github.com/DFKI-MLT/JTok</url>
+  </scm>
+
+  <organization>
+    <name>Multilinguality and Language Technology (MLT) research department of the German Research Center for Artificial Intelligence, DFKI GmbH</name>
+    <url>https://www.dfki.de/web/forschung/forschungsbereiche/sprachtechnologie-und-multilingualitaet/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License (LGPL) in version 2.1 or higher</name>
+      <url>http://www.gnu.org/licenses/#LGPL</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/DFKI-MLT/JTok/issues</url>
+  </issueManagement>
+
+  <developers>
+    <developer>
+      <id>steffen</id>
+      <name>Joerg Steffen</name>
+      <email>steffen@dfki.de</email>
+      <url>https://www.dfki.de/web/ueber-uns/mitarbeiter/person/jost02/</url>
+      <organization>German Research Center for Artificial Intelligence (DFKI)</organization>
+      <organizationUrl>https://www.dfki.de/</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.36</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.3.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.brics.automaton</groupId>
+      <artifactId>automaton</artifactId>
+      <version>1.11-8</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${basedir}</directory>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
+        <targetPath>META-INF</targetPath>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.7</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.1.1</version>
+        <configuration>
+          <!-- Set the target configuration directory to be used in the bin 
+            scripts -->
+          <configurationDirectory>conf</configurationDirectory>
+          <!-- Include the target configuration directory in the beginning 
+            of the classpath declaration in the bin scripts -->
+          <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+          <!-- Configure repository -->
+          <generateRepository>false</generateRepository>
+          <repositoryName>lib</repositoryName>
+          <repositoryLayout>flat</repositoryLayout>
+          <!-- Generate bin scripts for windows and unix per default -->
+          <platforms>
+            <platform>windows</platform>
+            <platform>unix</platform>
+          </platforms>
+          <programs>
+            <program>
+              <mainClass>de.dfki.lt.tools.tokenizer.JTok</mainClass>
+              <name>tokenize</name>
+            </program>
+            <program>
+              <mainClass>de.dfki.lt.tools.tokenizer.output.XmlOutputter</mainClass>
+              <name>tokenixe</name>
+            </program>
+          </programs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>appassembler</id>
+            <phase>package</phase>
+            <goals>
+              <goal>assemble</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>maven-replacer-plugin</artifactId>
+        <version>1.3.9</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- fix appassembler scripts to use shorter classpaths -->
+          <includes>
+            <include>target/appassembler/bin/*</include>
+          </includes>
+          <regex>false</regex>
+          <replacements>
+            <replacement>
+              <token>"%REPO%"\</token>
+              <value>..\lib\</value>
+            </replacement>
+            <replacement>
+              <token>"%BASEDIR%"\</token>
+              <value>..\</value>
+            </replacement>
+            <replacement>
+              <token>"$REPO"/</token>
+              <value>../lib/</value>
+            </replacement>
+            <replacement>
+              <token>"$BASEDIR"/</token>
+              <value>../</value>
+            </replacement>
+          </replacements>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/bin.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <includePluginDependencies>true</includePluginDependencies>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.3.12</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
