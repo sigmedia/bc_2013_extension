@@ -218,6 +218,20 @@ The samples are available and subjective evaluation results are available at thi
 
 * References
 ** Citing this repository and the resulted experiments
+#+begin_src bibtex
+  @article{LeMaguer2024,
+      title        = {The limits of the Mean Opinion Score for speech synthesis evaluation},
+      author       = {Sébastien {Le Maguer} and Simon King and Naomi Harte},
+      year         = 2024,
+      journal      = {Computer, Speech \& Language},
+      volume       = 84,
+      pages        = 101577,
+      doi          = {https://doi.org/10.1016/j.csl.2023.101577},
+      issn         = {0885-2308},
+      url          = {https://www.sciencedirect.com/science/article/pii/S0885230823000967},
+  }
+#+end_src
+
 ** Architectures & toolkits used in this repository
 
 The citation keys are given to avoid wasting too much space.
