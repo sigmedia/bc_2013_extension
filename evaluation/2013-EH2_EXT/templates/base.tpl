@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{get_variable("title")}}</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgo=">
+    <title>{{title}}</title>
 
     <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -21,7 +22,7 @@
   <body>
     <header class="row" style="margin-bottom: 30px;">
       {% block header %}
-        <h1 class="display-1">{{get_variable("title")}}</h1>
+        <h1 class="display-1">{{title}}</h1>
       {% endblock %}
 
     </header>

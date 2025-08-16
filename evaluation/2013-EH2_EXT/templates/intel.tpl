@@ -3,14 +3,14 @@
 {% block content %}
 
   <h2 class="bd-content-title">
-    {{get_variable("subtitle")}}
+    {{subtitle}}
     <div class="progress" style="height: 20px; width:50%; float:right;" >
       <div id="progress-bar" class="progress-bar" role="progressbar"
-           style="width: {{(get_variable("step")-1)/get_variable("max_steps")*100}}%;"
-           aria-valuenow="{{get_variable("step")-1}}"
+           style="width: {{(step-1)/max_steps*100}}%;"
+           aria-valuenow="{{step-1}}"
            aria-valuemin="0"
-           aria-valuemax="{{get_variable("max_steps")}}">
-           [{{get_variable("step")-1}} / {{get_variable("max_steps")}}]
+           aria-valuemax="{{max_steps}}">
+           [{{step-1}} / {{max_steps}}]
       </div>
   </h2>
 
@@ -31,12 +31,12 @@
         </legend>
 
 
-        {% for syssample in get_variable("syssamples") %}
-        <div class="form-group" style="margin-bottom:10px;">
-            {% set name_field = get_variable("field_name",name="transcription",syssamples=[syssample]) %}
-            {% set content,mimetype = syssample.get("audio")  %}
+        {% for sample in list_samples() %}
+          <div class="form-group" style="margin-bottom:10px;">
+            {% set name_field = sample | generate_field_name(basename="transcription") %}
+            {% set content,mimetype = sample.get("audio")  %}
 
-            <label for="score@{{syssample.ID}}">
+            <label for="score@{{sample.ID}}">
                 {% if mimetype == "text" %}
                    {{content}}
                 {% elif mimetype == "image" %}
@@ -57,8 +57,8 @@
             </label>
 
             <div class="form-group required">
-                <label for="transcription@{{syssample.ID}}">Transcription:</label>
-                <input type="text" id="transcription@{{syssample.ID}}" name="{{ name_field }}" class="form-control" required />
+                <label for="transcription@{{sample.ID}}">Transcription:</label>
+                <input type="text" id="transcription@{{sample.ID}}" name="{{ name_field }}" class="form-control" required />
             </div>
         </div>
         {% endfor %}

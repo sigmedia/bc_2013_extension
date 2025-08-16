@@ -20,7 +20,7 @@ admin:
         description: Download the database in CSV or SQLite format
 
 # Structure of the evaluation
-stages:
+activities:
   login:
     type: email_auth
     template: login.tpl
