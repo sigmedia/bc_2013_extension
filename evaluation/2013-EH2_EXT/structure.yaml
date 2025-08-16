@@ -7,29 +7,23 @@ variables:
 
 # Administration configuration
 admin:
-  entrypoint:
-    mod: admin_panel
-    password: bflzefinlh67s
-    variables:
-      subtitle: Admin Panel
-  mods:
-  - mod: export_bdd
-    variables:
-      subtitle: Download BDD
-      subdescription: Download the database in CSV or SQLite format.
+  entrypoint: panel
+  units:
+    panel:
+      password: bflzefinlh67s
+      variables:
+        subtitle: Admin Panel
 
-mods:
-  - mod: direct_auth
-
-#   - mod: gdpr
-#     variables:
-#       gdpr_compliance: relax
-#       validate: True
+    export_bdd:
+      variables:
+        subtitle: Download BDD
+        description: Download the database in CSV or SQLite format
 
 # Structure of the evaluation
 stages:
   login:
-    type: direct_auth
+    type: email_auth
+    template: login.tpl
     next: info
 
   info:
@@ -44,15 +38,47 @@ stages:
 
   # Similarity test section
   section_1:
-    type: test
+    type: task
     template: similarity.tpl
     next: intro_mos
     nb_systems_per_step: 1
     nb_steps: 8
-    nb_step_intro: 0
+    nb_intro_steps: 0
     transaction_timeout_seconds: 600
-    variables:
-      subtitle: Section 1
+    subtitle: Section 1
+    systems:
+      - name: "Natural"
+        data: "section_1/natural.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveNET"
+        data: "section_1/fastpitch_wn.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveGAN"
+        data: "section_1/fastpitch_wg.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveGAN"
+        data: "section_1/tacotron_wg.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveNET"
+        data: "section_1/tacotron_wn.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "K"
+        data: "section_1/K.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "N"
+        data: "section_1/N.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "C"
+        data: "section_1/C.csv"
+        delimiter: "\t"
+        max_samples: 8
 
   intro_mos:
     type: form
@@ -61,48 +87,174 @@ stages:
 
   # MOS Test configuration
   section_2:
-    type: test
+    type: task
     template: mos.tpl
     next: section_3
     nb_systems_per_step: 1
     nb_steps: 8
-    nb_step_intro: 0
+    nb_intro_steps: 0
     transaction_timeout_seconds: 600
-    variables:
-      subtitle: Section 2
+    subtitle: Section 2
+    systems:
+      - name: "Natural"
+        data: "section_2/natural.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveNET"
+        data: "section_2/fastpitch_wn.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveGAN"
+        data: "section_2/fastpitch_wg.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveGAN"
+        data: "section_2/tacotron_wg.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveNET"
+        data: "section_2/tacotron_wn.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "K"
+        data: "section_2/K.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "N"
+        data: "section_2/N.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "C"
+        data: "section_2/C.csv"
+        delimiter: "\t"
+        max_samples: 8
 
   section_3:
-    type: test
+    type: task
     template: mos.tpl
     next: section_4
     nb_systems_per_step: 1
     nb_steps: 8
-    nb_step_intro: 0
+    nb_intro_steps: 0
     transaction_timeout_seconds: 600
-    variables:
-      subtitle: Section 3
+    subtitle: Section 3
+    systems:
+      - name: "FastPitch_WaveNET"
+        data: "section_3/fastpitch_wn.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveGAN"
+        data: "section_3/fastpitch_wg.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveGAN"
+        data: "section_3/tacotron_wg.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveNET"
+        data: "section_3/tacotron_wn.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "K"
+        data: "section_3/K.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "N"
+        data: "section_3/N.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "C"
+        data: "section_3/C.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "CTRL"
+        data: "section_3/CTRL.csv"
+        delimiter: "\t"
+        max_samples: 8
+
 
   section_4:
-    type: test
+    type: task
     template: mos.tpl
     next: section_5
     nb_systems_per_step: 1
     nb_steps: 8
-    nb_step_intro: 0
+    nb_intro_steps: 0
     transaction_timeout_seconds: 600
-    variables:
-      subtitle: Section 4
+    subtitle: Section 4
+    systems:
+      - name: "Natural"
+        data: "section_4/natural.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveNET"
+        data: "section_4/fastpitch_wn.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveGAN"
+        data: "section_4/fastpitch_wg.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveGAN"
+        data: "section_4/tacotron_wg.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveNET"
+        data: "section_4/tacotron_wn.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "K"
+        data: "section_4/K.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "N"
+        data: "section_4/N.csv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "C"
+        data: "section_4/C.csv"
+        delimiter: "\t"
+        max_samples: 8
 
   section_5:
-    type: test
+    type: task
     template: mos.tpl
     next: intro_intel
     nb_systems_per_step: 1
     nb_steps: 7
-    nb_step_intro: 0
+    nb_intro_steps: 0
     transaction_timeout_seconds: 600
-    variables:
-      subtitle: Section 5
+    subtitle: Section 5
+    systems:
+      - name: "FastPitch_WaveNET"
+        data: "section_5/fastpitch_wn.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "FastPitch_WaveGAN"
+        data: "section_5/fastpitch_wg.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "Tacotron_WaveGAN"
+        data: "section_5/tacotron_wg.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "Tacotron_WaveNET"
+        data: "section_5/tacotron_wn.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "K"
+        data: "section_5/K.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "N"
+        data: "section_5/N.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "C"
+        data: "section_5/C.csv"
+        delimiter: "\t"
+        max_samples: 7
+
 
   # Intelligibility Test configuration
   intro_intel:
@@ -112,26 +264,84 @@ stages:
 
 
   section_8:
-    type: test
+    type: task
     template: intel.tpl
     next: section_9
     nb_systems_per_step: 1
     nb_steps: 7
-    nb_step_intro: 0
+    nb_intro_steps: 0
     transaction_timeout_seconds: 600
-    variables:
-      subtitle: Section 6
+    subtitle: Section 6
+    systems:
+      - name: "FastPitch_WaveNET"
+        data: "section_8/fastpitch_wn.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "FastPitch_WaveGAN"
+        data: "section_8/fastpitch_wg.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "Tacotron_WaveGAN"
+        data: "section_8/tacotron_wg.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "Tacotron_WaveNET"
+        data: "section_8/tacotron_wn.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "K"
+        data: "section_8/K.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "N"
+        data: "section_8/N.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "C"
+        data: "section_8/C.csv"
+        delimiter: "\t"
+        max_samples: 7
+
+
 
   section_9:
-    type: test
+    type: task
     template: intel.tpl
     next: feedback
     nb_systems_per_step: 1
     nb_steps: 7
-    nb_step_intro: 0
+    nb_intro_steps: 0
     transaction_timeout_seconds: 600
-    variables:
-      subtitle: Section 7
+    subtitle: Section 7
+    systems:
+      - name: "FastPitch_WaveNET"
+        data: "section_9/fastpitch_wn.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "FastPitch_WaveGAN"
+        data: "section_9/fastpitch_wg.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "Tacotron_WaveGAN"
+        data: "section_9/tacotron_wg.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "Tacotron_WaveNET"
+        data: "section_9/tacotron_wn.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "K"
+        data: "section_9/K.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "N"
+        data: "section_9/N.csv"
+        delimiter: "\t"
+        max_samples: 7
+      - name: "C"
+        data: "section_9/C.csv"
+        delimiter: "\t"
+        max_samples: 7
 
   feedback:
     type: form

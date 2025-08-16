@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2 class="bd-content-title"> <img src="{{get_asset('/img/svg_icon/chevron-right.svg','flexeval')}}" alt=">" /> Who are you ?</h2>
+<h2 class="bd-content-title">Who are you ?</h2>
 <form action="./save" method="post" class="form-example">
 
     <h3>General Information</h3>

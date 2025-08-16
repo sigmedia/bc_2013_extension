@@ -3,8 +3,6 @@
 {% block content %}
 
 <h2 class="bd-content-title">
-    <img src="{{get_asset('/img/svg_icon/chevron-right.svg','flexeval')}}" alt=">" />
-
     Introduction to sections 2, 3, 4 and 5
 </h2>
 

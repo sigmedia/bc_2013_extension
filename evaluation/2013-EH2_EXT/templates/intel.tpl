@@ -2,10 +2,17 @@
 
 {% block content %}
 
-<h2 class="bd-content-title">
-    <img src="{{get_asset('/img/svg_icon/chevron-right.svg','flexeval')}}" alt=">" />
-    {{get_variable("subtitle","Test")}} - step {{get_variable("step")}} over {{get_variable("max_steps")}}
-</h2>
+  <h2 class="bd-content-title">
+    {{get_variable("subtitle")}}
+    <div class="progress" style="height: 20px; width:50%; float:right;" >
+      <div id="progress-bar" class="progress-bar" role="progressbar"
+           style="width: {{(get_variable("step")-1)/get_variable("max_steps")*100}}%;"
+           aria-valuenow="{{get_variable("step")-1}}"
+           aria-valuemin="0"
+           aria-valuemax="{{get_variable("max_steps")}}">
+           [{{get_variable("step")-1}} / {{get_variable("max_steps")}}]
+      </div>
+  </h2>
 
 <form action="./save" method="post" enctype="multipart/form-data" class="form-example">
 
@@ -27,7 +34,7 @@
         {% for syssample in get_variable("syssamples") %}
         <div class="form-group" style="margin-bottom:10px;">
             {% set name_field = get_variable("field_name",name="transcription",syssamples=[syssample]) %}
-            {% set content,mimetype = syssample.get(num=0)  %}
+            {% set content,mimetype = syssample.get("audio")  %}
 
             <label for="score@{{syssample.ID}}">
                 {% if mimetype == "text" %}

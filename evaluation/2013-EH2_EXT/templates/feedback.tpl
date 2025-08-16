@@ -38,10 +38,7 @@
 
 {% block content %}
 
-<h2 class="bd-content-title">
-    <img src="{{get_asset('/img/svg_icon/chevron-right.svg','flexeval')}}" alt=">" />
-    Free form
-</h2>
+<h2 class="bd-content-title">Free form</h2>
 
 <form action="./save" method="post" class="form-example">
     <h3>Environment related information</h3>

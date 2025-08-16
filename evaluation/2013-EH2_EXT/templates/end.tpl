@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2 class="bd-content-title"> <img src="{{get_asset('/img/svg_icon/chevron-right.svg','flexeval')}}" alt=">" /> Test completed!</h2>
+<h2 class="bd-content-title">Test completed!</h2>
 
 <p>
     Thank you for completing the test.

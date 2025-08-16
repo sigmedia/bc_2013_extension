@@ -1,0 +1,10 @@
+# Can be populated
+systems/files
+assets/ref_samples
+
+# Are generated
+assets/sample_cache
+.tmp
+
+# Are some environment helpers
+.envrc

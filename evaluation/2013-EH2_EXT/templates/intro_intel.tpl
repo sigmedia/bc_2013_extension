@@ -2,10 +2,7 @@
 
 {% block content %}
 
-<h2 class="bd-content-title">
-    <img src="{{get_asset('/img/svg_icon/chevron-right.svg','flexeval')}}" alt=">" />
-    Introduction to sections 6 and 7
-</h2>
+<h2 class="bd-content-title">Introduction to sections 6 and 7</h2>
 
 <form action="./save" method="post" enctype="multipart/form-data" class="form-example">
 
