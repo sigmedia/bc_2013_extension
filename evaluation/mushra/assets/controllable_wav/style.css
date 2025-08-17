@@ -1,0 +1,61 @@
+
+.btn-play, .btn-play.disabled, .btn-play:disabled {
+    color: #fff;
+    background-color: #1F883D;
+    border-color: #1F883D;
+}
+
+
+.btn-stop, .btn-stop.disabled, .btn-stop:disabled {
+    color: #fff;
+    background-color: #C04750;
+    border-color: #C04750;
+}
+
+.btn-solo .btn-solo.disabled, .btn-solo:disabled {
+    color: #fff;
+    background-color: #1F883D;
+    border-color: #1F883D;
+}
+
+.btn-mute, .btn-mute.disabled, .btn-mute:disabled {
+    color: #fff;
+    background-color: #C04750;
+    border-color: #C04750;
+}
+
+.custom-fieldset {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.custom-fieldset-legend {
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #fff;
+    padding: 0 10px;
+    position: absolute;
+    top: -12px; /* Adjust to align with the border */
+    left: 10px; /* Adjust to align with the border */
+}
+
+.custom-fieldset-content {
+    margin-top: 20px; /* Adjust to create space for the legend */
+}
+.audio-controls {
+    margin-top: 20px;
+    margin-bottom: 60px;
+}
+.time-display {
+    margin-bottom: 10px;
+}
+#slider {
+    margin: 20px 0;
+}
+#waveform {
+    height: 100px;
+    margin-bottom: 20px;
+}

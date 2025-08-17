@@ -1,0 +1,114 @@
+# Test global information
+entrypoint: "login"
+variables:
+  title: Speech Synthesis Evaluation
+  authors: Sébastien Le Maguer
+  email: sebastien.lemaguer@helsinki.fi
+
+# Administration configuration
+admin:
+  entrypoint: panel
+  units:
+    export_bdd:
+      subtitle: Download BDD
+      description: Download the database in CSV or SQLite format.
+
+    panel:
+      password: bflzefinlh67s
+      subtitle: Admin Panel
+
+# Structure of the evaluation (http://127.0.0.1:8080/run/prolific_auth/login/?PROLIFIC_PID=test&STUDY_ID=what&SESSION_ID=ok )
+activities:
+  login:
+    type: prolific_auth
+    template: login.tpl
+    next: instructions
+
+  instructions:
+    type: form
+    template: instructions.tpl
+    next: section_1_training
+
+  section_1_training:
+    type: task
+    template: mymushra.tpl
+    next: section_1
+    nb_systems_per_step: 5
+    nb_steps: 1 # NOTE: this is the TOTAL number of steps (intro + actual steps)
+    nb_intro_steps: 1
+    transaction_timeout_seconds: 600
+    selection_strategy: "LeastSeenSampleAlignedSelection"
+    reference_system: "Natural_Intro"
+    subtitle: "Section 1 - Training"
+    systems:
+      - name: "Natural_Intro"
+        data: "intro/natural.tsv"
+        delimiter: "\t"
+        max_samples: 1
+      - name: "FastPitch_WaveNET_Intro"
+        data: "intro/fastpitch_wn.tsv"
+        delimiter: "\t"
+        max_samples: 1
+      - name: "FastPitch_WaveGAN_Intro"
+        data: "intro/fastpitch_wg.tsv"
+        delimiter: "\t"
+        max_samples: 1
+      - name: "Tacotron_WaveGAN_Intro"
+        data: "intro/tacotron_wg.tsv"
+        delimiter: "\t"
+        max_samples: 1
+      - name: "Tacotron_WaveNET_Intro"
+        data: "intro/tacotron_wn.tsv"
+        delimiter: "\t"
+        max_samples: 1
+      # - name: "Degraded_Intro"
+      #   data: "intro/degraded.tsv"
+      #   delimiter: "\t"
+      #   max_samples: 1
+
+  section_1:
+    type: task
+    template: mymushra.tpl
+    next: post_questionnaire
+    nb_systems_per_step: 5
+    nb_steps: 8 # NOTE: this is the TOTAL number of steps (intro + actual steps)
+    nb_intro_steps: 0
+    transaction_timeout_seconds: 600
+    selection_strategy: "LeastSeenSampleAlignedSelection"
+    reference_system: "Natural"
+    subtitle: "Section 1"
+    systems:
+      - name: "Natural"
+        data: "core_test/natural.tsv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveNET"
+        data: "core_test/fastpitch_wn.tsv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "FastPitch_WaveGAN"
+        data: "core_test/fastpitch_wg.tsv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveGAN"
+        data: "core_test/tacotron_wg.tsv"
+        delimiter: "\t"
+        max_samples: 8
+      - name: "Tacotron_WaveNET"
+        data: "core_test/tacotron_wn.tsv"
+        delimiter: "\t"
+        max_samples: 8
+      # - name: "Degraded"
+      #   data: "core_test/degraded.tsv"
+      #   delimiter: "\t"
+      #   max_samples: 8
+
+  post_questionnaire:
+    type: form
+    template: feedback.tpl
+    next: end_test
+
+  # End of the test
+  end_test:
+    type: page:user
+    template: end.tpl
