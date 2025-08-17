@@ -1,4 +1,4 @@
-{% extends get_template('base.tpl') %}
+{% extends 'base.tpl' %}
 
 {% block head %}
 <script>
