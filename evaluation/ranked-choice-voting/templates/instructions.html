@@ -1,0 +1,54 @@
+{% extends get_template('base.tpl') %}
+
+{% block content %}
+
+  <h2 class="bd-content-title">Instructions</h2>
+
+  <form action="./save" method="post" class="form-example justified">
+
+    In the following test, you will listen a set of samples.
+    At each step, the same text has been synthesized by multiple systems.
+    You will have to rank these systems in respect to the following guidelines:
+    <ul>
+      <li>The most natural sample should be ranked at position "1", the second most natural at position "2" and so on</li>
+      <li>If you consider two or more samples to be equivalent, give them the same rank.</li>
+      <li>All the samples have to be listened in their entirety at least once and ranked before moving to the next step</li>
+      <li>You won't be able to go back after you submitted one step</li>
+      <li>Please do the test in one session (without break), in an environment which is as quiet as possible, in order to avoid biasing the data</li>
+      <li><b>One sample has been degraded on purpose and should always be ranked last</b></li>
+    </ul>
+
+    <p>
+      Before the evaluation itself, you will have an training step for you to get familiar with the controls.
+      The training step is identical to the core of the evaluation itself but we don't record the information.
+    </p>
+
+    <p>
+      The platform monitors the following actions:
+      <ul>
+        <li>when do you play a sample</li>
+        <li>when do you rank a sample</li>
+      </ul>
+      Our goal is to determine if there are some common strategies between the participants.
+    </p>
+
+    <p>
+      Finally, here is a small video showing how the platform works. <b>You have to watch the video fully before moving to the training step</b>.
+
+      <input type="hidden" id="instruction_validated" name="instruction_validated" value="true">
+      <center>
+        <video width="600px" controls readall>
+          <source src="{{get_asset('/videos/instructions.mp4')}}">
+          Your browser does not support the <code>video</code> element.
+        </video>
+      </center>
+    </p>
+    <p>
+      Thank you for the participation,
+    </p>
+
+    <center>
+      <button type="submit" id="submit" class="btn btn-primary">Start the test</button>
+    </center>
+  </form>
+{% endblock %}

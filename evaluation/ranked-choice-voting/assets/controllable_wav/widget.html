@@ -1,0 +1,14 @@
+<div id="waveform"></div>
+<div id="wave-timeline"></div>
+<div class="audio-controls">
+    <div id="slider"></div>
+    <center>
+        <button type="button" class="btn btn-primary btn-play" id="playButton" onclick="widget.playAudio()" style="margin: 5px;">Play</button>
+        <button type="button" class="btn btn-primary btn-stop" id="stopButton" onclick="widget.stopAudio()" style="margin: 5px;" disabled>Stop</button>
+    </center>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
+<script src="https://unpkg.com/wavesurfer.js@7.7.15/dist/wavesurfer.min.js"       type="text/javascript"></script>
+<script src="https://unpkg.com/wavesurfer.js@7.7.15/dist/plugins/timeline.min.js" type="text/javascript"></script>
+<script src="https://unpkg.com/wavesurfer.js@7.7.15/dist/plugins/regions.min.js"  type="text/javascript"></script>

@@ -1,0 +1,52 @@
+#+TITLE: Blizzard 2013-EH2 extension - FlexEval configuration
+#+AUTHOR: Sébastien Le Maguer
+#+EMAIL: lemagues@tcd.ie
+#+DATE: 24 May 2022
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  fr
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://seblemaguer.github.io/css/default.css" />
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="default.css" />
+
+FlexEval is retrievable [[https://gitlab.inria.fr/expression/tools/FlexEval][here]].
+For the present experiments, please us the *branch "clean"*.
+
+* TODO Directory structure
+The overall directory structure is the following:
+#+begin_example
+  .
+  ├── assets
+  │   ├── ...
+  │   └── ref_samples*
+  ├── structure.yaml
+  ├── systems
+  │   ├── files*
+  │   └── ...
+  ├── templates
+  │   └── ...
+  └── tests.yaml
+#+end_example
+
+The directory contains 2 key files:
+ - [[file:structure.yaml][structure.yaml]] :: the entry point describing the structure of the evaluation
+ - [[file:tests.yaml][tests.yaml]] :: describing each section specificities (which systems and their configuration, how many steps, ...)
+
+It also contains the following directories:
+  - assets :: the assets needed for the evaluation. In our case, it is mainly logos and some CSS/JS tweaks,
+  - systems :: the systems organized by sections,
+  - templates :: the templates needed to describe each step of the evaluation.
+
+Finally, the elements suffixed with a "=*=" indicate parts to be filled:
+  - in the folder =systems/files= should be copied the wav files downloaded from the server
+  - in the folder =assets/ref_samples= should be copied the *following reference samples from the natural voice* (so from the directory =systems/files/natural16=):
+    - =booksent_2013_0057.wav=
+    - =booksent_2013_0077.wav=
+    - =booksent_2013_0043.wav=
+    - =booksent_2013_0088.wav=
+
+
+
+* COMMENT some extra configuration

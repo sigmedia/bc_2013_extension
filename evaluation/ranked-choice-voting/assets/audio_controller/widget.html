@@ -1,0 +1,86 @@
+{% extends get_template('base.tpl') %}
+
+{% block head %}
+<style>
+    td {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h2 class="bd-content-title">
+    <img src="{{get_asset('/img/svg_icon/chevron-right.svg','flexeval')}}" alt=">" />
+    Step {{get_variable("step")}} (of {{get_variable("max_steps")}})
+</h2>
+
+<div style="font-size: x-large;">
+    <form action="./save" id="the_form" method="post" enctype="multipart/form-data" class="form-example">
+        <div style="font-size: large; background-color: #e8f4ea; color: #000; padding: 20px; margin-top: 20px; margin-bottom:20px; border-radius: 25px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom:10px;">
+            <center>
+                <audio id="sample" control>
+                    <source id="sample_src" src="">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </center>
+        </div>
+
+
+        <table width="100%">
+            <tbody>
+                <tr>
+                    <td><b>System</b></td>
+                    {% for syssample in get_variable("syssamples") %}
+                    {% set name_field = get_variable("field_name",name="rank_score_%d" % loop.index, syssamples=[syssample]) %}
+                    <td>
+                        <button type="button" class="btn btn-primary btn-mute" id="audio_{{loop.index-1}}" onclick="selectSample({{loop.index - 1}})">Sample {{loop.index}}</button>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td><b>Rank</b></td>
+                    {% for syssample in get_variable("syssamples") %}
+                    {% set name_field = get_variable("field_name",name="rank_score_%d" % loop.index, syssamples=[syssample]) %}
+                    <td>
+                        <select id="score_{{loop.index}}" name="{{name_field}}" class="form-control" required>
+                            <option value="" selected disabled hidden>Choose here</option>
+                            {% for syssample in get_variable("syssamples") %}
+                            <option value="{{loop.index}}">{{loop.index}}</option>
+                            {% endfor %}
+                            <option value="-1">Not ranked</option>
+                        </select>
+                    </td>
+                    {% endfor %}
+            </tbody>
+        </table>
+
+        <center>
+            <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+        </center>
+    </form>
+</div>
+
+
+<script>
+    var audio = document.getElementById("sample");
+    var audio_source = document.getElementById("sample_src");
+    const list_audios = [
+        {% for syssample in get_variable("syssamples") %}
+        {% set content,mimetype = syssample.get(num=0)  %}
+        {% if mimetype.startswith("audio") %}
+        ["{{syssample}}", "{{content}}"],
+        {% endif %}
+        {% endfor %}
+    ];
+
+    function selectSample(index) {
+        source.src = list_audios[index][1];
+        audio.load();
+    }
+</script>
+{% endblock %}
