@@ -17,7 +17,7 @@ admin:
       password: bflzefinlh67s
       subtitle: Admin Panel
 
-# Structure of the evaluation (http://127.0.0.1:8080/run/prolific_auth/login/?PROLIFIC_PID=test&STUDY_ID=what&SESSION_ID=ok )
+# Structure of the evaluation (test: http://127.0.0.1:8080/run/prolific_auth/login/?PROLIFIC_PID=test&STUDY_ID=what&SESSION_ID=ok )
 activities:
   login:
     type: prolific_auth
@@ -61,10 +61,6 @@ activities:
         data: "intro/tacotron_wn.tsv"
         delimiter: "\t"
         max_samples: 1
-      # - name: "Degraded_Intro"
-      #   data: "intro/degraded.tsv"
-      #   delimiter: "\t"
-      #   max_samples: 1
 
   section_1:
     type: task
@@ -98,10 +94,6 @@ activities:
         data: "core_test/tacotron_wn.tsv"
         delimiter: "\t"
         max_samples: 8
-      # - name: "Degraded"
-      #   data: "core_test/degraded.tsv"
-      #   delimiter: "\t"
-      #   max_samples: 8
 
   post_questionnaire:
     type: form
