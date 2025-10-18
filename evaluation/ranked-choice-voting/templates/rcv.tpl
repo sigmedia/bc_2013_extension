@@ -56,9 +56,8 @@
       <h4 class="alert-heading">This is the training step</h4>
       <p>Use it to familiarise yourself with the platform as your answers won't be taken into account</p>
 
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
+
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   {% endif %}
 
@@ -66,9 +65,7 @@
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <h4 class="alert-heading">The test has now started and your answers will be taken into account</h4>
 
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   {% endif %}
 

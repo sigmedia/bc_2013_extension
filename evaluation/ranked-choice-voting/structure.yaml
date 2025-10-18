@@ -16,7 +16,7 @@ admin:
       subtitle: Download BDD
       description: Download the database in CSV or SQLite format.
 
-# Structure of the evaluation (test URL: http://localhost:8080/run/prolific_auth/login/?PROLIFIC_PID=test&STUDY_ID=what&SESSION_ID=ok )
+# Structure of the evaluation (test URL: http://127.0.0.1:8080/run/prolific_auth/login/?PROLIFIC_PID=test&STUDY_ID=what&SESSION_ID=ok )
 activities:
   login:
     type: prolific_auth
@@ -31,6 +31,7 @@ activities:
   training:
     type: task
     template: rcv.tpl
+    subtitle: "Training phase"
     next: core
     nb_systems_per_step: 6
     nb_steps: 1 # NOTE: this is the TOTAL number of steps (intro + actual steps)
@@ -66,6 +67,7 @@ activities:
   core:
     type: task
     template: rcv.tpl
+    subtitle: "Test phase"
     next: post_questionnaire
     nb_systems_per_step: 6
     nb_steps: 8 # NOTE: this is the TOTAL number of steps (intro + actual steps)
