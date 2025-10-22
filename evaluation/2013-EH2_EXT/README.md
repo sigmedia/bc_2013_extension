@@ -7,7 +7,7 @@ Replikant configuration to run the Blizzard 2013 - EH2 extension test conducted 
 First, it is required to install [replikant](https://github.com/seblemaguer/replikant). While the submission to pypi is in the pipeline, in between, you can install it using the following command:
 
 ```sh
-pip install git+https://github.com/seblemaguer/replikant.git
+pip install replikant
 ```
 
 You also need to populate the test, by retrieving the samples to evaluate:
