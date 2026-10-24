@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.m2ci.msp', name: 'jtgt', version: '0.6.1'
+    compile group: 'io.github.m2ci-msp', name: 'jtgt', version: '0.7.0'
     compile group: 'de.dfki.mary', name: 'marytts-runtime', version: '6.0.2-SNAPSHOT', {
         exclude group: '*', module: 'groovy-all'
     }

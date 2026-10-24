@@ -33,7 +33,7 @@ class MaryTTSGenerateLinguisticFeaturesPlugin implements Plugin<Project> {
 
         project.dependencies {
             marytts 'de.dfki.mary:marytts-common:6.0.1-SNAPHOT'
-            jtgt 'org.m2ci.msp:jtgt:0.6.1'
+            jtgt 'io.github.m2ci-msp:jtgt:0.7.0'
         }
 
         project.task('addDurationToUtt', type: AddDurationToUtt) {
