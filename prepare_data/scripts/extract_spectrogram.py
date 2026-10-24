@@ -131,7 +131,7 @@ def wav2mel(x: np.ndarray, config, eps=1e-10) -> np.ndarray:
     # get mel basis
     fmin = 0 if config.fmin is None else config.fmin
     fmax = sampling_rate / 2 if config.fmax is None else config.fmax
-    mel_basis = librosa.filters.mel(config.sampling_rate, config.fft_size, config.num_mels, fmin, fmax)
+    mel_basis = librosa.filters.mel(sr=config.sampling_rate, n_fft=config.fft_size, n_mels=config.num_mels, fmin=fmin, fmax=fmax)
     mel = np.maximum(eps, np.dot(spc, mel_basis.T))
 
     if config.scale == "ln":
